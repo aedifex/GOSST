@@ -10,7 +10,7 @@ jobs:
       - run: make build-linux
       - run:
           name: test webserver
-          command: ./httpGo
+          command: ./httpGO
           background: true
       - run: curl localhost:8000/version | grep $CIRCLE_SHA1
       # background: true
