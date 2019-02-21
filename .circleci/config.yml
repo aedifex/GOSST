@@ -16,4 +16,18 @@ jobs:
           background: true
       - run: 
           name: test version endpoint
-          command: curl localhost:8000/version | grep $CIRCLE_SHA
+          command: curl localhost:8000/version | grep $CIRCLE_SHA1
+  test:
+    docker:
+      - image: circleci/golang:1.9
+    working_directory: /go/src/github.com/aedifex/httpGo
+    steps:
+      - run: "hello from test"
+
+workflows:
+  version: 2
+  # arbitrary workflow name...
+  build-test-deploy:
+    jobs:
+      - build
+      - test
