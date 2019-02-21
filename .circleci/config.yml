@@ -22,7 +22,7 @@ jobs:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/aedifex/httpGo
     steps:
-      - run: "hello from test"
+      - run: echo "hello from test"
 
 workflows:
   version: 2
