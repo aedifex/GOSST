@@ -7,10 +7,13 @@ jobs:
     working_directory: /go/src/github.com/aedifex/httpGo
     steps:
       - checkout
-      - run: make build-linux
       - run:
-          name: test webserver
+          name: build binary
+          command: make build-linux
+      - run:
+          name: start  webserver
           command: ./httpGO
           background: true
-      - run: curl localhost:8000/version | grep $CIRCLE_SHA1
-      # background: true
+      - run: 
+          name: test version endpoint
+          command: curl localhost:8000/version | grep $CIRCLE_SHA
