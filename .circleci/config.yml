@@ -29,10 +29,13 @@ jobs:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/aedifex/httpGo
     steps:
+      - setup_remote_docker
       - run: echo "hello from test"
       - attach_workspace:
           at: /go/src/github.com/aedifex/
       - run: ls -alt
+      - run: make build-linux
+      - run: make build-docker-image
 
 workflows:
   version: 2
