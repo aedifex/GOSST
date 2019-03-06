@@ -17,12 +17,22 @@ jobs:
       - run: 
           name: test version endpoint
           command: curl localhost:8000/version | grep $CIRCLE_SHA1
+      # if we can compile & run the webserver
+      # we'll move the binary downstream
+      - persist_to_workspace:
+          root: /go/src/github.com/aedifex/
+          paths:
+            - httpGO
+
   test:
     docker:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/aedifex/httpGo
     steps:
       - run: echo "hello from test"
+      - attach_workspace:
+          at: /go/src/github.com/aedifex/
+      - run: ls -alt
 
 workflows:
   version: 2
@@ -30,4 +40,6 @@ workflows:
   build-test-deploy:
     jobs:
       - build
-      - test
+      - test:
+          requires:
+            - build

@@ -21,3 +21,6 @@ build-linux: $(GOFILES)
 
 build-docker-image:
 	docker build -t chriscircleci/httpgo:${CIRCLE_SHA1} .
+
+build-local-docker-image: build-linux
+	docker build -t chris/httpgo:coolest .
