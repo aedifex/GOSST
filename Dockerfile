@@ -4,8 +4,8 @@ FROM alpine
 #RUN groupadd -g 3333 appuser && \
 #    useradd -r -u 3333 -g appuser appuser
 
-RUN addgroup -g 3333 appuser && \
-    adduser -u 3333 -g appuser appuser
+RUN addgroup appuser && \
+    adduser -g appuser appuser
 
 USER appuser
 
