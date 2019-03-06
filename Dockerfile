@@ -4,7 +4,7 @@ FROM alpine
 RUN addgroup -S myawesomegroup
 RUN adduser -S myawesomeuser -G myawesomegroup
 
-USER appuser
+USER myawesomeuser
 
 COPY httpGO /usr/local/bin/httpGO
 
