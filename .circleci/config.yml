@@ -22,7 +22,7 @@ jobs:
       - persist_to_workspace:
           root: /go/src/github.com/aedifex/
           paths:
-            - httpGO
+            - httpGo
 
   test:
     docker:
