@@ -1,11 +1,8 @@
 # Barebones Dockerfile for testing httpGO
 FROM alpine
 
-#RUN groupadd -g 3333 appuser && \
-#    useradd -r -u 3333 -g appuser appuser
-
-RUN addgroup appuser && \
-    adduser -g appuser appuser
+RUN addgroup -S myawesomegroup
+RUN adduser -S myawesomeuser -G myawesomegroup
 
 USER appuser
 
