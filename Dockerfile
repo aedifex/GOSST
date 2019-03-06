@@ -5,7 +5,7 @@ FROM alpine
 #    useradd -r -u 3333 -g appuser appuser
 
 RUN addgroup -g 3333 appuser && \
-    adduser -r -u 3333 -g appuser appuser
+    adduser -u 3333 -g appuser appuser
 
 USER appuser
 
