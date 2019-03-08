@@ -36,14 +36,19 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Serving request: %s", r.URL.Path)
 	log.Printf("URI requested: %v", r.URL)
 	host, _ := os.Hostname()
-	fmt.Fprintf(w, "Hello, world!\n")
-	fmt.Fprintf(w, "Version: 1.0.0\n")
-	fmt.Fprintf(w, "Hostname: %s\n", host)
-	w.WriteHeader(http.StatusInternalServerError)
+	//fmt.Fprintf(w, "Hello, world!\n")
+	//fmt.Fprintf(w, "Version: 1.0.0\n")
+	// fmt.Fprintf(w, "Hostname: %s\n", host)
+	resp := map[string]string{"Message": "Hello, world!", "Build version": build_id, "Hostname": host}
+	payload, err := jsonIfy(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		fmt.Fprintf(w, string(payload))
+	}
 	// fmt.Fprintf(w, "Remote IP: ", r.RemoteAddr[6:])
 	// fmt.Fprintf(w, "Remote IP: ", r.RemoteAddr[6:])
 	// ip := map[string]interface{}{"Origin": r.RemoteAddr[6:], "Host": r.Host}
-
 }
 
 func test_json(w http.ResponseWriter, r *http.Request) {

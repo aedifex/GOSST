@@ -12,7 +12,7 @@ BUILD_TIME=`date +%Y%m%d%H%M%S`
 
 default: build-local
 
-# produce a binary for local env
+# Produce a binary for local env
 build-local: $(GOFILES)
 	go build ${LOCAL_LDFLAGS} -o ${BINARY}
 
@@ -22,5 +22,7 @@ build-linux: $(GOFILES)
 build-docker-image:
 	docker build -t chriscircleci/httpgo:${CIRCLE_SHA1} .
 
+# We're building a linux binary because
+# our docker image runs Alpine Linux
 build-local-docker-image: build-linux
 	docker build -t chris/httpgo:coolest .

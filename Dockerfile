@@ -1,14 +1,14 @@
 # Barebones Dockerfile for testing httpGO
 FROM alpine
 
+COPY httpGO /usr/local/bin/httpGO
+
+RUN chmod +x /usr/local/bin/httpGO
+
 RUN addgroup -S myawesomegroup
 RUN adduser -S myawesomeuser -G myawesomegroup
 
 USER myawesomeuser
-
-COPY httpGO /usr/local/bin/httpGO
-
-RUN chmod +x /usr/local/bin/httpGO
 
 ENTRYPOINT /usr/local/bin/httpGO
 
