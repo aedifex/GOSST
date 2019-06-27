@@ -1,50 +1,25 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
   build:
     docker:
+      # specify the version
       - image: circleci/golang:1.9
 
-    working_directory: /go/src/github.com/aedifex/httpGo
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
-      - run:
-          name: build binary
-          command: make build-linux
-      - run:
-          name: start  webserver
-          command: ./httpGO
-          background: true
-      - run: 
-          name: test version endpoint
-          command: |
-            curl localhost:8000/version | grep $CIRCLE_SHA1
-            curl localhost:8000/hello
-      # if we can compile & run the webserver
-      # we'll move the binary downstream
-      - persist_to_workspace:
-          root: /go/src/github.com/aedifex/
-          paths:
-            - httpGo
 
-  test:
-    docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/aedifex/httpGo
-    steps:
-      - setup_remote_docker
-      - run: echo "hello from test"
-      - attach_workspace:
-          at: /go/src/github.com/aedifex/
-      - run: ls -alt
+      # specify any bash command here prefixed with `run: `
       - run: make build-linux
-      - run: make build-docker-image
-
-workflows:
-  version: 2
-  # arbitrary workflow name...
-  build-test-deploy:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
