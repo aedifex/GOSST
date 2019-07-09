@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build-binary:
     docker:
       - image: circleci/golang:1.9
 
@@ -18,32 +18,29 @@ jobs:
           name: test version endpoint
           command: |
             curl localhost:8000/version | grep $CIRCLE_SHA1
-      # if we can compile & run the webserver
-      # we'll move the binary downstream
-      #- persist_to_workspace:
-      #    root: /go/src/github.com/aedifex/
-      #    paths:
-      #      - httpGo
-
+      # If we can successfully compile and execute the binary,
+      # the 'build-binary' job will complete and we'll pass the artifact
+      # downstream via Workspaces.
+      - persist_to_workspace:
+          root: /go/src/github.com/aedifex/
+          paths:
+            - httpGo
   test:
     docker:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/aedifex/httpGo
     steps:
       - setup_remote_docker
-      - run: echo "hello from test"
       - attach_workspace:
           at: /go/src/github.com/aedifex/
       - run: ls -alt
-      - run: make build-linux
       - run: make build-docker-image
-
 workflows:
   version: 2
   # arbitrary workflow name...
   build-test-deploy:
     jobs:
-      - build
-      #- test:
-      #    requires:
-      #      - build
+      - build-binary
+      - test:
+          requires:
+            - build
