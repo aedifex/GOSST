@@ -9,17 +9,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	// "io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"runtime"
-	// "errors"
 )
 
-var build_id = "dev"
-var build_time = "dev"
+// These values will be used to version
+// the binary.
+var build_id, build_time = "dev", "dev"
 
 // Takes an element, returns an array of bytes
 // in json fmt.
@@ -31,40 +30,36 @@ func jsonIfy(element interface{}) ([]byte, error) {
 	return json, nil
 }
 
-// return 'get' URI
+// Return 'get' URI
+// in the body of the response.
 func get(w http.ResponseWriter, r *http.Request) {
-	// logRequest(r)
-	// return GET data
-
 	resp := map[string]interface{}{"Request method": r.Method}
 	payload, err := jsonIfy(resp)
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		// I believe error terminates the program...
-		log.Fatal(err)
-	}
-	//io.WriteString(w, fmt.Sprintf("Request method: %v\n", r.Method))
-	//io.WriteString(w, fmt.Sprintf("Request path: %v\n", r.URL.Path))
-	//io.WriteString(w, fmt.Sprintf("URL 	 path: %v\n", r.URL))
+	checkErr(err)
 	fmt.Fprintf(w, string(payload))
 }
 
+// Returns OS & ARCH info about the host.
 func runtimeInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Ave mundus! I'm running on %s with an %s CPU ", runtime.GOOS, runtime.GOARCH)
 }
 
-func user_agentHandler(w http.ResponseWriter, r *http.Request) {
+// Returns user agent associated with request.
+func user_agent(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]interface{}{"User agent": r.Header["User-Agent"]}
 	payload, _ := jsonIfy(resp)
 	io.WriteString(w, string(payload))
 }
 
+// Returns binary version in the form of SHA1 && compile time.
 func version(w http.ResponseWriter, r *http.Request) {
 	version := map[string]string{"Build version": build_id, "Build time": build_time}
 	payload, _ := jsonIfy(version)
 	fmt.Fprintf(w, string(payload))
 }
 
+// Simple helper function. Some might find it useful...
+// others pointless.
 func checkErr(e error) error {
 	if e != nil {
 		return e
@@ -72,19 +67,21 @@ func checkErr(e error) error {
 	return nil
 }
 
-// return requester's ip address
+// Return requester's IP address.
 func whatismyip(w http.ResponseWriter, r *http.Request) {
 	ipAddress, _, err := net.SplitHostPort(r.RemoteAddr)
 	checkErr(err)
 	fmt.Fprintf(w, "%s", ipAddress)
 }
 
+// We've encapsulated the server logic in
+// this method. Should we revisit this application
+// and refactor the complexity, we'll want to isolate as
+// much of the server logic as possible...
 func startServer() {
 
-	// show at start time and when requested
-	binary_version := map[string]string{"Build v": build_id, "Build time": build_time}
-
-	// config port or default to 8000
+	// PORT is a good example of elements
+	// we'd like to be able to configure.
 	var port string
 	if os.Getenv("PORT") != "" {
 		port = ":" + os.Getenv("PORT")
@@ -106,7 +103,9 @@ func startServer() {
 
 	mux.HandleFunc("/version", version)
 
-	log.Printf("Starting server version: %v on port: %v", binary_version["Build v"], port)
+	mux.HandleFunc("/user-agent", user_agent)
+
+	log.Printf("Starting server version: %v on port: %v", build_id, port)
 	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
