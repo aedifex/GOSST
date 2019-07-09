@@ -1,7 +1,7 @@
 # Barebones Dockerfile for testing httpGO
 FROM alpine
 
-COPY httpGO /usr/local/bin/httpGO
+COPY httpGo /usr/local/bin/httpGO
 
 RUN chmod +x /usr/local/bin/httpGO
 

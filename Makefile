@@ -3,7 +3,7 @@
 # grab all go files?
 GOFILES = $(shell find . -name '*.go' -not -path './vendor/*')
 
-BINARY = "httpGO"
+BINARY = "httpGo"
 # LOCAL = "httpGO.go"
 LINUX_BINARY = "httpGO_Linux"
 LDFLAGS=-ldflags "-X main.build_id=${CIRCLE_SHA1} -X main.build_time=${BUILD_TIME}"
