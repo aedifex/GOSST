@@ -14,17 +14,17 @@ jobs:
           name: start  webserver
           command: ./httpGO
           background: true
-      - run: 
+      - run:
           name: test version endpoint
           command: |
             curl localhost:8000/version | grep $CIRCLE_SHA1
             curl localhost:8000/hello
       # if we can compile & run the webserver
       # we'll move the binary downstream
-      - persist_to_workspace:
-          root: /go/src/github.com/aedifex/
-          paths:
-            - httpGo
+      #- persist_to_workspace:
+      #    root: /go/src/github.com/aedifex/
+      #    paths:
+      #      - httpGo
 
   test:
     docker:

@@ -10,7 +10,7 @@ RUN adduser -S myawesomeuser -G myawesomegroup
 
 USER myawesomeuser
 
-ENTRYPOINT /usr/local/bin/httpGO
-
 # can we make this configurable?
 EXPOSE 8000
+
+CMD /usr/local/bin/httpGO
