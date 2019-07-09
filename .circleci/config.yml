@@ -43,4 +43,4 @@ workflows:
       - build-binary
       - test:
           requires:
-            - build
+            - build-binary
