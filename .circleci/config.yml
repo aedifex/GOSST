@@ -33,7 +33,6 @@ jobs:
       - setup_remote_docker
       - attach_workspace:
           at: /go/src/github.com/aedifex/
-      - run: ls -alt
       - run: make build-docker-image
 workflows:
   version: 2
