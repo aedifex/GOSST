@@ -12,7 +12,7 @@ jobs:
           command: make build-linux
       - run:
           name: start  webserver
-          command: ./httpGO
+          command: ./httpGo
           background: true
       - run:
           name: test version endpoint
