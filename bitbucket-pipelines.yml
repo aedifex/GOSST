@@ -10,5 +10,5 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - make build-linux
-          - exit 1
+          - make build-docker-image
           
