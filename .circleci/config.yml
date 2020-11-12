@@ -4,9 +4,10 @@ jobs:
     docker:
       - image: circleci/golang:1.9
 
-    working_directory: /go/src/github.com/aedifex/httpGo
+    working_directory: /src
     steps:
       - checkout
       - run:
           name: build binary
-          command: make build-linux
+          command: |
+            make build-linux && ./httpGO
