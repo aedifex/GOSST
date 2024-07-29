@@ -21,6 +21,17 @@ pipeline:
                     command: |-
                       echo "Welcome to Harness CI"
                       git status
+              - step:
+                  type: GitClone
+                  name: GitClone_1
+                  identifier: GitClone_1
+                  spec:
+                    connectorRef: account.Github_OAuth_1720712508026
+                    repoName: aedifex/GOSST
+                    build:
+                      type: branch
+                      spec:
+                        branch: master
           platform:
             os: Linux
             arch: Amd64
