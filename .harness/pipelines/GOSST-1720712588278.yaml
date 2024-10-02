@@ -32,6 +32,13 @@ pipeline:
                       type: branch
                       spec:
                         branch: master
+              - step:
+                  type: Run
+                  name: Check dir contents
+                  identifier: Check_dir_contents
+                  spec:
+                    shell: Sh
+                    command: ls -alt
           platform:
             os: Linux
             arch: Amd64
