@@ -1,0 +1,53 @@
+pipeline:
+  name: Build GOSST
+  identifier: Build_aedifex_GOSST_1720712593403
+  projectIdentifier: default_project
+  orgIdentifier: default
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Echo Welcome Message
+                  identifier: Echo_Welcome_Message
+                  spec:
+                    shell: Sh
+                    command: |-
+                      echo "Welcome to Harness CI"
+                      git status
+              - step:
+                  type: GitClone
+                  name: GitClone_1
+                  identifier: GitClone_1
+                  spec:
+                    connectorRef: account.Github_OAuth_1720712508026
+                    repoName: aedifex/GOSST
+                    build:
+                      type: branch
+                      spec:
+                        branch: master
+              - step:
+                  type: Run
+                  name: Check dir contents
+                  identifier: Check_dir_contents
+                  spec:
+                    shell: Sh
+                    command: ls -alt
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.Github_OAuth_1720712508026
+        repoName: aedifex/GOSST
+        build: <+input>
