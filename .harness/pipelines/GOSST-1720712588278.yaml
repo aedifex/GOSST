@@ -79,7 +79,7 @@ pipeline:
                   identifier: Check_Dir_Contents
                   spec:
                     shell: Sh
-                    command: ls
+                    command: ls -alt
   properties:
     ci:
       codebase:
