@@ -45,7 +45,7 @@ pipeline:
                   identifier: Compile_Binary
                   spec:
                     shell: Sh
-                    command: go build main.go -o main
+                    command: go build -o main
           platform:
             os: Linux
             arch: Amd64
