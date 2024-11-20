@@ -5,7 +5,7 @@ pipeline:
   orgIdentifier: default
   stages:
     - stage:
-        name: Build
+        name: Build Artifact
         identifier: Build
         type: CI
         spec:
@@ -52,6 +52,12 @@ pipeline:
           runtime:
             type: Cloud
             spec: {}
+          caching:
+            enabled: false
+            paths: []
+          buildIntelligence:
+            enabled: false
+        description: ""
   properties:
     ci:
       codebase:
