@@ -1,4 +1,4 @@
-// Christopher Black 2019
+// Christopher Black 2021
 // An aedifex project
 // ...for learning
 // ...for science
@@ -19,6 +19,7 @@ import (
 // These values will be used to version
 // the binary.
 var build_id, build_time = "dev", "dev"
+var git_commit string
 
 // Takes an element, returns an array of bytes
 // in json fmt.
@@ -53,7 +54,7 @@ func user_agent(w http.ResponseWriter, r *http.Request) {
 
 // Returns binary version in the form of SHA1 && compile time.
 func version(w http.ResponseWriter, r *http.Request) {
-	version := map[string]string{"Build version": build_id, "Build time": build_time}
+	version := map[string]string{"Build version": build_id, "Build time": build_time, "GitRev": git_commit}
 	payload, _ := jsonIfy(version)
 	fmt.Fprintf(w, string(payload))
 }
@@ -79,7 +80,6 @@ func whatismyip(w http.ResponseWriter, r *http.Request) {
 // and refactor the complexity, we'll want to isolate as
 // much of the server logic as possible...
 func startServer() {
-
 	// PORT is a good example of elements
 	// we'd like to be able to configure.
 	var port string
@@ -96,14 +96,15 @@ func startServer() {
 	// request URL to a function that takes Response/Request Writers.
 	// Functions with a larger/more complex scope will be defined in routes.go
 	mux.HandleFunc("/whatismyip", whatismyip)
-
 	mux.HandleFunc("/get", get)
-
 	mux.HandleFunc("/runtime", runtimeInfo)
-
 	mux.HandleFunc("/version", version)
-
 	mux.HandleFunc("/user-agent", user_agent)
+
+	// Serve static html
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.FileServer(http.Dir("./static")).ServeHTTP(w, r)
+	})
 
 	log.Printf("Starting server version: %v on port: %v", build_id, port)
 	err := http.ListenAndServe(port, mux)
