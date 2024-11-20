@@ -39,6 +39,13 @@ pipeline:
                   spec:
                     shell: Sh
                     command: ls -alt
+              - step:
+                  type: Run
+                  name: Compile Binary
+                  identifier: Compile_Binary
+                  spec:
+                    shell: Sh
+                    command: go build main.go -o main
           platform:
             os: Linux
             arch: Amd64
