@@ -5,7 +5,7 @@ pipeline:
   orgIdentifier: default
   stages:
     - stage:
-        name: Build
+        name: Build Artifact
         identifier: Build
         type: CI
         spec:
@@ -52,6 +52,34 @@ pipeline:
           runtime:
             type: Cloud
             spec: {}
+          caching:
+            enabled: false
+            paths: []
+          buildIntelligence:
+            enabled: false
+        description: ""
+    - stage:
+        name: Build Docker Image
+        identifier: Build_Docker_Image
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: false
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Check Dir Contents
+                  identifier: Check_Dir_Contents
+                  spec:
+                    shell: Sh
+                    command: ls -alt
   properties:
     ci:
       codebase:
