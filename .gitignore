@@ -1,5 +1,18 @@
-.circleci/optimized_config.yaml
-.circleci/gcr.yml
-httpGO
-saj
+# Ignore Terraform state files
+infra/*.tfstate
+infra/*.tfstate.*
+
+# Ignore crash logs
+infra/crash.log
+
+# Ignore Terraform working directory
+infra/.terraform/
+
+# Ignore Terraform lock file (optional, if it shouldn't be shared)
+infra/.terraform.lock.hcl
+
+# Misc scratchpad
 misc.txt
+
+# Prior Art
+prior_art

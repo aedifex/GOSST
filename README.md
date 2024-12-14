@@ -4,8 +4,8 @@
 
 A simple webserver written in Golang inspired in part by https://httpbin.org/ - an awesome tool used for inspecting http requests/responses. 
 
-httpGo is barebones, containerized, and currently building on CircleCI.
+httpGo is barebones, containerized, and currently building on Harness!.
 
 Thanks for stopping by!
 
-![](httpGo.gif)
+<!--  ![](httpGo.gif) */ -->

@@ -1,16 +1,14 @@
-# Barebones Dockerfile for testing httpGO
-FROM alpine
+# Start from a minimal base image
+FROM alpine:latest
 
-COPY httpGo /usr/local/bin/httpGO
+# Set the working directory
+WORKDIR /app
 
-RUN chmod +x /usr/local/bin/httpGO
+# Copy the compiled binary from your local system to the container
+COPY main .
 
-RUN addgroup -S myawesomegroup
-RUN adduser -S myawesomeuser -G myawesomegroup
-
-USER myawesomeuser
-
-# can we make this configurable?
+# Expose the port your binary listens on (e.g., 8000)
 EXPOSE 8000
 
-CMD /usr/local/bin/httpGO
+# Set the entrypoint to run the binary
+ENTRYPOINT ["./main"]
