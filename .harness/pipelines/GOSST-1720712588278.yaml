@@ -64,8 +64,7 @@ pipeline:
                       - harness
                     caching: true
                     buildArgs:
-                      GOOS: linux
-                      GOARCH: amd64
+                      platform: linux/amd64
           platform:
             os: Linux
             arch: Amd64
