@@ -45,7 +45,14 @@ pipeline:
                   identifier: Compile_Binary
                   spec:
                     shell: Sh
-                    command: go build -o main
+                    command: GOOS=linux GOARCH=amd64 go build -o main_linux .
+              - step:
+                  type: Run
+                  name: Build Docker Image
+                  identifier: Build_Docker_Image
+                  spec:
+                    shell: Sh
+                    command: docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:latest .
           platform:
             os: Linux
             arch: Amd64
