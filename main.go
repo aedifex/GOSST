@@ -16,13 +16,11 @@ import (
 	"runtime"
 )
 
-// These values will be used to version
-// the binary.
+// These values will be used to version the binary.
 var build_id, build_time = "dev", "dev"
 var git_commit string
 
-// Takes an element, returns an array of bytes
-// in json fmt.
+// Takes an element, returns an array of bytes in json fmt.
 func jsonIfy(element interface{}) ([]byte, error) {
 	json, err := json.Marshal(element)
 	if err != nil {
@@ -31,8 +29,7 @@ func jsonIfy(element interface{}) ([]byte, error) {
 	return json, nil
 }
 
-// Return 'get' URI
-// in the body of the response.
+// Return 'get' URI in the body of the response.
 func get(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]interface{}{"Request method": r.Method}
 	payload, err := jsonIfy(resp)
@@ -75,13 +72,8 @@ func whatismyip(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", ipAddress)
 }
 
-// We've encapsulated the server logic in
-// this method. Should we revisit this application
-// and refactor the complexity, we'll want to isolate as
-// much of the server logic as possible...
 func startServer() {
-	// PORT is a good example of elements
-	// we'd like to be able to configure.
+	// PORT is a good example of elements we'd like to be able to configure.
 	var port string
 	if os.Getenv("PORT") != "" {
 		port = ":" + os.Getenv("PORT")
