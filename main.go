@@ -20,19 +20,19 @@ import (
 var build_id, build_time = "dev", "dev"
 var git_commit string
 
-// Used for basic health checks, returning a 200 if the app is up and running
-http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusOK)
-    w.Write([]byte("OK"))
-})
-
-// Takes an element, returns an array of bytes in json fmt.
+// Takes an element, returns an array of bytes in JSON format.
 func jsonIfy(element interface{}) ([]byte, error) {
 	json, err := json.Marshal(element)
 	if err != nil {
 		return nil, err
 	}
 	return json, nil
+}
+
+// Used for basic health checks, returning a 200 if the app is up and running.
+func health(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
 }
 
 // Return 'get' URI in the body of the response.
@@ -90,15 +90,12 @@ func startServer() {
 	mux := http.NewServeMux()
 
 	// *** Multiplexer && Routes ***
-	// Basically mux is a mapping of a string in the form of a
-	// request URL to a function that takes Response/Request Writers.
-	// Functions with a larger/more complex scope will be defined in routes.go
 	mux.HandleFunc("/whatismyip", whatismyip)
 	mux.HandleFunc("/get", get)
 	mux.HandleFunc("/runtime", runtimeInfo)
 	mux.HandleFunc("/version", version)
 	mux.HandleFunc("/user-agent", user_agent)
-	// mux.HandleFunc("/health", user_agent)
+	mux.HandleFunc("/health", health)
 
 	// Serve static html
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
