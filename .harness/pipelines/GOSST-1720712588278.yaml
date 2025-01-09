@@ -55,7 +55,7 @@ pipeline:
                     repository: ghosst.azurecr.io/gosst
                     tags:
                       - harness
-                    caching: true
+                    caching: false
                     buildArgs:
                       platform: linux/amd64
           platform:
