@@ -98,7 +98,7 @@ func startServer() {
 	mux.HandleFunc("/runtime", runtimeInfo)
 	mux.HandleFunc("/version", version)
 	mux.HandleFunc("/user-agent", user_agent)
-	mux.HandleFunc("/health", user_agent)
+	// mux.HandleFunc("/health", user_agent)
 
 	// Serve static html
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
