@@ -53,6 +53,16 @@ pipeline:
                   spec:
                     shell: Sh
                     command: docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:latest .
+              - step:
+                  type: BuildAndPushACR
+                  name: Push to ACR
+                  identifier: Push_to_ACR
+                  spec:
+                    connectorRef: account.Azure_Aedifex_Sandbox
+                    repository: ghosst.azurecr.io/gosst
+                    tags:
+                      - harness
+                    caching: true
           platform:
             os: Linux
             arch: Amd64
