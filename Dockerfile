@@ -11,4 +11,4 @@ COPY main .
 EXPOSE 8000
 
 # Set the entrypoint to run the binary
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./main_linux"]
