@@ -20,6 +20,12 @@ import (
 var build_id, build_time = "dev", "dev"
 var git_commit string
 
+// Used for basic health checks, returning a 200 if the app is up and running
+http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("OK"))
+})
+
 // Takes an element, returns an array of bytes in json fmt.
 func jsonIfy(element interface{}) ([]byte, error) {
 	json, err := json.Marshal(element)
@@ -92,6 +98,7 @@ func startServer() {
 	mux.HandleFunc("/runtime", runtimeInfo)
 	mux.HandleFunc("/version", version)
 	mux.HandleFunc("/user-agent", user_agent)
+	mux.HandleFunc("/health", user_agent)
 
 	// Serve static html
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
