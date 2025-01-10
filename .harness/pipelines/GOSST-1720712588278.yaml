@@ -54,7 +54,7 @@ pipeline:
                     connectorRef: account.Azure_Aedifex_Sandbox
                     repository: ghosst.azurecr.io/gosst
                     tags:
-                      - harness
+                      - test
                     caching: true
           platform:
             os: Linux
