@@ -38,24 +38,19 @@ pipeline:
                   identifier: Compile_Binary
                   spec:
                     shell: Sh
-                    command: GOOS=linux GOARCH=amd64 go build -o main_linux .
-              - step:
-                  type: Run
-                  name: Check dir contents
-                  identifier: Check_dir_contents
-                  spec:
-                    shell: Sh
-                    command: ls -alt
-              - step:
-                  type: BuildAndPushACR
-                  name: Push to ACR
-                  identifier: Push_to_ACR
-                  spec:
-                    connectorRef: account.Azure_Aedifex_Sandbox
-                    repository: ghosst.azurecr.io/gosst
-                    tags:
-                      - test
-                    caching: true
+                    command: |-
+                      GOOS=linux GOARCH=amd64 go build -o main_linux .
+
+                      az login --service-principal \
+                        --username <+secrets.getValue("clientId")> \
+                        --password <+secrets.getValue("clientSecret")> \
+                        --tenant <+secrets.getValue("tenantId")>
+
+                      az acr login --name ghosst
+
+                      docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:harness .
+
+                      docker push ghosst.azurecr.io/gosst:harness
           platform:
             os: Linux
             arch: Amd64
