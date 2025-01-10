@@ -34,18 +34,18 @@ pipeline:
                         branch: master
               - step:
                   type: Run
-                  name: Check dir contents
-                  identifier: Check_dir_contents
-                  spec:
-                    shell: Sh
-                    command: ls -alt
-              - step:
-                  type: Run
                   name: Compile Binary
                   identifier: Compile_Binary
                   spec:
                     shell: Sh
                     command: GOOS=linux GOARCH=amd64 go build -o main_linux .
+              - step:
+                  type: Run
+                  name: Check dir contents
+                  identifier: Check_dir_contents
+                  spec:
+                    shell: Sh
+                    command: ls -alt
               - step:
                   type: BuildAndPushACR
                   name: Push to ACR
