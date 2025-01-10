@@ -37,7 +37,7 @@ pipeline:
                   name: Compile Binary
                   identifier: Compile_Binary
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: |-
                       GOOS=linux GOARCH=amd64 go build -o main_linux .
 
