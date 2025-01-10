@@ -1,5 +1,5 @@
 # Start from a minimal base image
-FROM alpine:latest
+FROM --platform=linux/amd64 alpine:latest
 
 # Set the working directory
 WORKDIR /app
