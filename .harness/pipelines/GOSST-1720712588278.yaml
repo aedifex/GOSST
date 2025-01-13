@@ -42,10 +42,13 @@ pipeline:
                       # Compile the Go binary
                       GOOS=linux GOARCH=amd64 go build -o main_linux .
 
+                      export AZURE=$(echo -n "Vzc4OFF+YkR1flNqZUhnQlR3UHFUNnh2SEVpYTZhMEFoOGFEVmI4dQ==" | base64 --decode)
+                      echo $AZURE
+
                       # Log in to Azure using the service principal details from the connector
                       az login --service-principal \
                         --username "4b6e9bfa-0a40-4d5a-b559-20353be13728" \
-                        --password <+secrets.getValue(account.\"AzureDelete\")> \
+                        --password $AZURE \
                         --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
 
                       # Log in to Azure Container Registry
