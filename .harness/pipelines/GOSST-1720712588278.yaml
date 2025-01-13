@@ -63,6 +63,11 @@ pipeline:
 
                       # Push the Docker image to ACR
                       docker push ghosst.azurecr.io/gosst:idea
+
+                      az containerapp update \                                                    
+                      --name gosst-app \
+                      --resource-group GOSST \
+                      --image ghosst.azurecr.io/gosst:idea
           platform:
             os: Linux
             arch: Amd64
