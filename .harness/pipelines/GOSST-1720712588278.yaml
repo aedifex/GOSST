@@ -42,8 +42,7 @@ pipeline:
                       #!/bin/bash
                       set -e
 
-
-                      echo "text secret is: " <+secrets.getValue("Azure_Sandbox")>
+                      echo "Text secret is: <+secrets.getValue(\"Azure_Sandbox\")>"
           platform:
             os: Linux
             arch: Amd64
