@@ -44,8 +44,6 @@ pipeline:
 
                       ls -alt
 
-                      RUN chmod +x main_linux
-
                       export AZURE=$(echo -n "Vzc4OFF+YkR1flNqZUhnQlR3UHFUNnh2SEVpYTZhMEFoOGFEVmI4dQ==" | base64 --decode)
                       echo $AZURE
 
