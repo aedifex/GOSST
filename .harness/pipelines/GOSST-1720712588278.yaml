@@ -64,6 +64,10 @@ pipeline:
                       # Push the Docker image to ACR
                       docker push ghosst.azurecr.io/gosst:idea
 
+                      az config set extension.use_dynamic_install=yes_without_prompt
+
+                      az extension add --name containerapp
+
                       az containerapp update \                                                    
                       --name gosst-app \
                       --resource-group GOSST \
