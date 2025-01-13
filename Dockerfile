@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the compiled binary from your local system to the container
 COPY main_linux .
 
+# Make executable
+RUN chmod +x main_linux
+
 # Expose the port your binary listens on (e.g., 8000)
 EXPOSE 8000
 
