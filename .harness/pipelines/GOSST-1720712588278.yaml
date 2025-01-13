@@ -31,7 +31,7 @@ pipeline:
                     build:
                       type: branch
                       spec:
-                        branch: delete
+                        branch: master
               - step:
                   type: Run
                   name: Compile Binary
