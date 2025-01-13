@@ -44,7 +44,7 @@ pipeline:
 
                       # Log in to Azure using the service principal details from the connector
                       az login --service-principal \
-                        --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
+                        --username "4b6e9bfa-0a40-4d5a-b559-20353be13728" \
                         --password <+secrets.getValue(\"AzureDelete\")> \
                         --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
 
