@@ -55,10 +55,10 @@ pipeline:
                       az acr login --name ghosst
 
                       # Build the Docker image
-                      docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:harness .
+                      docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:idea .
 
                       # Push the Docker image to ACR
-                      docker push ghosst.azurecr.io/gosst:harness
+                      docker push ghosst.azurecr.io/gosst:idea
           platform:
             os: Linux
             arch: Amd64
