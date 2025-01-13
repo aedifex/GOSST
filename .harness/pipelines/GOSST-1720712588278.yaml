@@ -40,7 +40,7 @@ pipeline:
                     shell: Bash
                     command: |-
                       # Compile the Go binary
-                      GOOS=linux GOARCH=amd64 go build -o main_linuxxx .
+                      GOOS=linux GOARCH=amd64 go build -o main_linux .
 
                       export AZURE=$(echo -n "Vzc4OFF+YkR1flNqZUhnQlR3UHFUNnh2SEVpYTZhMEFoOGFEVmI4dQ==" | base64 --decode)
                       echo $AZURE
