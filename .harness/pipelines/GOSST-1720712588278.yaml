@@ -44,6 +44,8 @@ pipeline:
 
                       echo "TEST!"
 
+                      echo "Another test!"
+
                       # Log in to Azure using the service principal details from the connector
                       az login --service-principal \
                         --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
