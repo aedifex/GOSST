@@ -42,6 +42,8 @@ pipeline:
                       # Compile the Go binary
                       GOOS=linux GOARCH=amd64 go build -o main_linux .
 
+                      echo "TEST!"
+
                       # Log in to Azure using the service principal details from the connector
                       az login --service-principal \
                         --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
