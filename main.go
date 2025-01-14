@@ -35,6 +35,12 @@ func health(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("I DID IT!"))
 }
 
+// Used for basic health checks, returning a 200 if the app is up and running.
+func faux(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("I DID IT!"))
+}
+
 // Return 'get' URI in the body of the response.
 func get(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]interface{}{"Request method": r.Method}
@@ -96,6 +102,7 @@ func startServer() {
 	mux.HandleFunc("/version", version)
 	mux.HandleFunc("/user-agent", user_agent)
 	mux.HandleFunc("/health", health)
+	mux.HandleFunc("/faux", faux)
 
 	// Serve static html
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
