@@ -65,6 +65,37 @@ pipeline:
                       docker push ghosst.azurecr.io/gosst:idea
 
                       az config set extension.use_dynamic_install=yes_without_prompt
+                      APP_NAME="gosst-app"
+                      RESOURCE_GROUP="GOSST"
+                      
+                      # Fetch the FQDN of the Azure Container App
+                      FQDN=$(az containerapp show \
+                      --name $APP_NAME \
+                      --resource-group $RESOURCE_GROUP \
+                      --query "properties.configuration.ingress.fqdn" \
+                      -o tsv)
+
+  # Check if the FQDN was retrieved successfully
+  if [ -z "$FQDN" ]; then
+    echo "Failed to fetch the FQDN of the container app. Exiting."
+    exit 1
+  fi
+
+  # Construct the URL
+  URL="https://$FQDN/faux"
+
+  # Perform the HTTP check
+  echo "Performing HTTP check on $URL..."
+  RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+
+  # Evaluate the response
+  if [ "$RESPONSE" -eq 200 ]; then
+    echo "HTTP check passed. App is reachable at $URL"
+  else
+    echo "HTTP check failed with status code $RESPONSE"
+    exit 1
+  fi
+
           platform:
             os: Linux
             arch: Amd64
