@@ -32,13 +32,13 @@ func jsonIfy(element interface{}) ([]byte, error) {
 // Used for basic health checks, returning a 200 if the app is up and running.
 func health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("I DID IT!"))
+	w.Write([]byte("OK"))
 }
 
 // Used for basic health checks, returning a 200 if the app is up and running.
 func faux(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Practicing true CI on harness"))
+	w.Write([]byte("CI Demo!"))
 }
 
 // Return 'get' URI in the body of the response.
