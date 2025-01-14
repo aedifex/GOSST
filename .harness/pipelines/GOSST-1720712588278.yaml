@@ -126,6 +126,9 @@ pipeline:
                     inputVariables: []
                     outputVariables: []
                   timeout: 45s
+          environment:
+            environmentRef: harnessdevenv
+            deployToAll: false
         tags: {}
   properties:
     ci:
