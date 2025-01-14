@@ -129,6 +129,8 @@ pipeline:
           environment:
             environmentRef: harnessdevenv
             deployToAll: false
+            infrastructureDefinitions:
+              - identifier: harnessk8sinfra
         tags: {}
   properties:
     ci:
