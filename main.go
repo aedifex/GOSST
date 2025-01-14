@@ -38,7 +38,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 // Used for basic health checks, returning a 200 if the app is up and running.
 func faux(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Faux as in faux pas."))
+	w.Write([]byte("Bad revision?"))
 }
 
 // Return 'get' URI in the body of the response.
