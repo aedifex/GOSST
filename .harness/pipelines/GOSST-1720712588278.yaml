@@ -44,57 +44,17 @@ pipeline:
 
                       ls -alt
 
-
-
-                      export AZURE=$(echo -n "Vzc4OFF+YkR1flNqZUhnQlR3UHFUNnh2SEVpYTZhMEFoOGFEVmI4dQ==" | base64 --decode)
-                      echo $AZURE
-
-                      # Log in to Azure using the service principal details from the connector
-                      az login --service-principal \
-                        --username "4b6e9bfa-0a40-4d5a-b559-20353be13728" \
-                        --password $AZURE \
-                        --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
-
-                      # Log in to Azure Container Registry
-                      az acr login --name ghosst
-
-                      # Build the Docker image
                       docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:idea .
-
-                      # Push the Docker image to ACR
-                      docker push ghosst.azurecr.io/gosst:idea
-
-                      az config set extension.use_dynamic_install=yes_without_prompt
-                      APP_NAME="gosst-app"
-                      RESOURCE_GROUP="GOSST"
-
-                      # Fetch the FQDN of the Azure Container App
-                      FQDN=$(az containerapp show \
-                      --name $APP_NAME \
-                      --resource-group $RESOURCE_GROUP \
-                      --query "properties.configuration.ingress.fqdn" \
-                      -o tsv)
-
-                      # Check if the FQDN was retrieved successfully
-                      if [ -z "$FQDN" ]; then
-                        echo "Failed to fetch the FQDN of the container app. Exiting."
-                        exit 1
-                      fi
-
-                      # Construct the URL
-                      URL="https://$FQDN/faux"
-
-                      # Perform the HTTP check
-                      echo "Performing HTTP check on $URL..."
-                      RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
-
-                      # Evaluate the response
-                      if [ "$RESPONSE" -eq 200 ]; then
-                        echo "HTTP check passed. App is reachable at $URL"
-                      else
-                        echo "HTTP check failed with status code $RESPONSE"
-                        exit 1
-                      fi
+              - step:
+                  type: BuildAndPushACR
+                  name: Build Image and Push to ACR
+                  identifier: Build_Image_and_Push_to_ACR
+                  spec:
+                    connectorRef: account.Azure_Aedifex_Sandbox
+                    repository: ghosst.azurecr.io/gosst
+                    tags:
+                      - idea
+                    caching: true
           platform:
             os: Linux
             arch: Amd64
