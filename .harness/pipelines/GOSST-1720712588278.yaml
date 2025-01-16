@@ -107,31 +107,6 @@ pipeline:
           buildIntelligence:
             enabled: false
         description: ""
-    - stage:
-        name: Verify
-        identifier: Verify
-        description: ""
-        type: Custom
-        spec:
-          execution:
-            steps:
-              - step:
-                  type: Http
-                  name: Verify Deployment
-                  identifier: Verify_Deployment
-                  spec:
-                    url: https://gosst-app.redbeach-63fd196a.westus.azurecontainerapps.io/health
-                    method: GET
-                    headers: []
-                    inputVariables: []
-                    outputVariables: []
-                  timeout: 45s
-          environment:
-            environmentRef: harnessdevenv
-            deployToAll: false
-            infrastructureDefinitions:
-              - identifier: harnessk8sinfra
-        tags: {}
   properties:
     ci:
       codebase:
