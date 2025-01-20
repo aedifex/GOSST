@@ -43,9 +43,7 @@ pipeline:
                       # GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main_linux .
                       make build
 
-                      ls -alt
-
-                      docker build --platform linux/amd64 -t ghosst.azurecr.io/gosst:idea .
+                      make docker-build
               - step:
                   type: BuildAndPushACR
                   name: Build Image and Push to ACR
