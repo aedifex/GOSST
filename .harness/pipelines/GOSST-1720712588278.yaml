@@ -48,6 +48,12 @@ pipeline:
                       echo "Build ID: $HARNESS_BUILD_ID"
                       echo "Pipeline ID: $HARNESS_PIPELINE_ID"
                       echo "Commit SHA: $HARNESS_COMMIT_SHA"
+
+                      env | grep HARNESS_
+
+                      echo "Build ID: <+pipeline.executionId>"
+                      echo "Pipeline ID: <+pipeline.identifier>"
+                      echo "Commit SHA: <+codebase.commitSha>"
               - step:
                   type: BuildAndPushACR
                   name: Build Image and Push to ACR
