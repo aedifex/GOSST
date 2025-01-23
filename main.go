@@ -18,7 +18,7 @@ import (
 
 // These values will be used to version the binary.
 var build_id, build_time = "dev", "dev"
-var git_commit string
+var CommitSHA string
 
 // Takes an element, returns an array of bytes in JSON format.
 func jsonIfy(element interface{}) ([]byte, error) {
@@ -32,7 +32,7 @@ func jsonIfy(element interface{}) ([]byte, error) {
 // Used for basic health checks, returning a 200 if the app is up and running.
 func health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	w.Write([]byte(CommitSHA))
 }
 
 // Used for basic health checks, returning a 200 if the app is up and running.
