@@ -54,6 +54,7 @@ pipeline:
                       echo "Build ID: <+pipeline.executionId>"
                       echo "Pipeline ID: <+pipeline.identifier>"
                       echo "Commit SHA: <+codebase.commitSha>"
+                      echo "Commit SHA: <+pipeline.triggeredBy.name>"
               - step:
                   type: BuildAndPushACR
                   name: Build Image and Push to ACR
