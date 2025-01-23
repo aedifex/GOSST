@@ -44,6 +44,10 @@ pipeline:
                       make build
 
                       make docker-build
+
+                      echo "Build ID: $HARNESS_BUILD_ID"
+                      echo "Pipeline ID: $HARNESS_PIPELINE_ID"
+                      echo "Commit SHA: $HARNESS_COMMIT_SHA"
               - step:
                   type: BuildAndPushACR
                   name: Build Image and Push to ACR
