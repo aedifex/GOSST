@@ -63,7 +63,7 @@ func user_agent(w http.ResponseWriter, r *http.Request) {
 
 // Returns binary version in the form of SHA1 && compile time.
 func version(w http.ResponseWriter, r *http.Request) {
-	version := map[string]string{"Build version": build_id, "Build time": build_time, "GitRev": git_commit}
+	version := map[string]string{"Build version": build_id, "Build time": build_time, "GitRev": CommitSHA}
 	payload, _ := jsonIfy(version)
 	fmt.Fprintf(w, string(payload))
 }
