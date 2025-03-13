@@ -61,10 +61,9 @@ pipeline:
                   spec:
                     shell: Sh
                     command: |-
-                      az login --service-principal \
-                                --username <+secrets.getValue("AZURE_CLIENT_ID")> \
-                                --password <+secrets.getValue("AZURE_CLIENT_SECRET")> \
-                                --tenant <+secrets.getValue("AZURE_TENANT_ID")>
+                      export AZURE_CLIENT_ID="<+secrets.getValue('AZURE_CLIENT_ID')>"
+
+                      echo $AZURE_CLIENT_ID
           platform:
             os: Linux
             arch: Amd64
