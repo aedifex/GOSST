@@ -14,6 +14,17 @@ pipeline:
             steps:
               - step:
                   type: Run
+                  name: Azure Login
+                  identifier: Azure_Login
+                  spec:
+                    shell: Sh
+                    command: |-
+                      export AZURE_CLIENT_ID="<+secrets.getValue('AZURE_CLIENT_ID')>"
+
+                      echo ${AZURE_CLIENT_ID}
+                contextType: Pipeline
+              - step:
+                  type: Run
                   name: Echo Welcome Message
                   identifier: Echo_Welcome_Message
                   spec:
@@ -54,16 +65,6 @@ pipeline:
                     tags:
                       - hopeful
                     caching: true
-              - step:
-                  type: Run
-                  name: Azure Login
-                  identifier: Azure_Login
-                  spec:
-                    shell: Sh
-                    command: |-
-                      export AZURE_CLIENT_ID="<+secrets.getValue('AZURE_CLIENT_ID')>"
-
-                      echo ${AZURE_CLIENT_ID}
           platform:
             os: Linux
             arch: Amd64
