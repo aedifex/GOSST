@@ -11,7 +11,7 @@ all: build
 # Build the Go binary
 .PHONY: build
 build:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.CommitSHA=abc123" -o $(BINARY) .
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X 'main.CommitSHA=$(COMMIT_SHA)'" -o $(BINARY) .
 
 # Run the application locally
 .PHONY: run
