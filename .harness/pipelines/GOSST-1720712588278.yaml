@@ -54,6 +54,17 @@ pipeline:
                     tags:
                       - hopeful
                     caching: true
+              - step:
+                  type: Run
+                  name: Azure Login
+                  identifier: Azure_Login
+                  spec:
+                    shell: Sh
+                    command: |-
+                      az login --service-principal \
+                                --username <+secrets.getValue("AZURE_CLIENT_ID")> \
+                                --password <+secrets.getValue("AZURE_CLIENT_SECRET")> \
+                                --tenant <+secrets.getValue("AZURE_TENANT_ID")>
           platform:
             os: Linux
             arch: Amd64
