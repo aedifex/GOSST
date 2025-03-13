@@ -41,20 +41,11 @@ pipeline:
                     command: |-
                       # Compile the Go binary
                       # GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main_linux .
+                      export COMMIT_SHA="<+codebase.commitSha>"
+
                       make build
 
                       make docker-build
-
-                      echo "Build ID: $HARNESS_BUILD_ID"
-                      echo "Pipeline ID: $HARNESS_PIPELINE_ID"
-                      echo "Commit SHA: $HARNESS_COMMIT_SHA"
-
-                      env | grep HARNESS_
-
-                      echo "Build ID: <+pipeline.executionId>"
-                      echo "Pipeline ID: <+pipeline.identifier>"
-                      echo "Commit SHA: <+codebase.commitSha>"
-                      echo "Commit SHA: <+pipeline.triggeredBy.name>"
               - step:
                   type: BuildAndPushACR
                   name: Build Image and Push to ACR
