@@ -52,7 +52,7 @@ pipeline:
                     connectorRef: account.Azure_Aedifex_Sandbox
                     repository: ghosst.azurecr.io/gosst
                     tags:
-                      - idea
+                      - hopeful
                     caching: true
           platform:
             os: Linux
