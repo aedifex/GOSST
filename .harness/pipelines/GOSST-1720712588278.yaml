@@ -63,7 +63,7 @@ pipeline:
                     command: |-
                       export AZURE_CLIENT_ID="<+secrets.getValue('AZURE_CLIENT_ID')>"
 
-                      echo $AZURE_CLIENT_ID
+                      echo ${AZURE_CLIENT_ID}
           platform:
             os: Linux
             arch: Amd64
