@@ -13,16 +13,6 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Run
-                  name: Echo Welcome Message
-                  identifier: Echo_Welcome_Message
-                  spec:
-                    shell: Sh
-                    command: |-
-                      echo "Welcome to Harness CI"
-                      git status
-                      echo <+pipeline.sequenceId>
-              - step:
                   type: GitClone
                   name: GitClone_1
                   identifier: GitClone_1
