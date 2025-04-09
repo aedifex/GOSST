@@ -67,6 +67,8 @@ pipeline:
                         --password '<+secrets.getValue("account.Azure_Sandbox")>' \
                         --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
 
+                      az extension add --name containerapp
+
                       az containerapp update \
                         --name gosst-app \
                         --resource-group GOSST \
