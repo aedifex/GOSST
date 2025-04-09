@@ -72,7 +72,8 @@ pipeline:
                       az containerapp update \
                         --name gosst-app \
                         --resource-group GOSST \
-                        --image ghosst.azurecr.io/ghosst-app:<+pipeline.sequenceId>
+                        --image ghosst.azurecr.io/ghosst-app:<+pipeline.sequenceId> \
+                        --api-version 2022-11-01-preview
           platform:
             os: Linux
             arch: Amd64
