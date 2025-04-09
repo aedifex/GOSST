@@ -14,17 +14,6 @@ pipeline:
             steps:
               - step:
                   type: Run
-                  name: Azure Login
-                  identifier: Azure_Login
-                  spec:
-                    shell: Sh
-                    command: |-
-                      export AZURE_CLIENT_ID="<+secrets.getValue('AZURE_CLIENT_ID')>"
-
-                      echo ${AZURE_CLIENT_ID}
-                contextType: Pipeline
-              - step:
-                  type: Run
                   name: Echo Welcome Message
                   identifier: Echo_Welcome_Message
                   spec:
@@ -32,6 +21,7 @@ pipeline:
                     command: |-
                       echo "Welcome to Harness CI"
                       git status
+                      echo <+pipeline.sequenceId>
               - step:
                   type: GitClone
                   name: GitClone_1
@@ -63,7 +53,7 @@ pipeline:
                     connectorRef: account.Azure_Aedifex_Sandbox
                     repository: ghosst.azurecr.io/gosst
                     tags:
-                      - hopeful
+                      - <+pipeline.sequenceId>
                     caching: true
           platform:
             os: Linux
