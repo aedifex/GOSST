@@ -62,6 +62,8 @@ pipeline:
                   spec:
                     shell: Bash
                     command: |-
+                      curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
                       az login --service-principal \
                         --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
                         --password '<+secrets.getValue("account.Azure_Sandbox")>' \
