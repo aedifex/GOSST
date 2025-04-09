@@ -55,6 +55,17 @@ pipeline:
                     tags:
                       - <+pipeline.sequenceId>
                     caching: true
+              - step:
+                  type: Run
+                  name: Update ACA
+                  identifier: Update_ACA
+                  spec:
+                    shell: Bash
+                    command: |-
+                      az login --service-principal \
+                          --username <+infra.variables.clientId> \
+                          --password <+infra.variables.clientSecret> \
+                          --tenant <+infra.variables.tenantId>
           platform:
             os: Linux
             arch: Amd64
