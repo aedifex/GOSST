@@ -105,9 +105,10 @@ func startServer() {
 	mux.HandleFunc("/faux", faux)
 
 	// Serve static html
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index.html")
-	})
+	//mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	//	http.ServeFile(w, r, "./static/index.html")
+	//})
+	mux.Handle("/", http.FileServer(http.Dir("./static")))
 
 	log.Printf("Starting server version: %v on port: %v", build_id, port)
 	err := http.ListenAndServe(port, mux)
