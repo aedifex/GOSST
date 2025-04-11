@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the compiled binary from your local system to the container
 COPY main_linux .
 
+# Copy static files
+COPY static ./static
+
 # Make executable
 RUN chmod +x main_linux
 
