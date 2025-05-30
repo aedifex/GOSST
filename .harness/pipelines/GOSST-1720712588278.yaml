@@ -46,6 +46,24 @@ pipeline:
                       - <+pipeline.sequenceId>
                     caching: true
               - step:
+                  type: AquaTrivy
+                  name: AquaTrivy_1
+                  identifier: AquaTrivy_1
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: container
+                      detection: auto
+                    advanced:
+                      log:
+                        level: info
+                    privileged: true
+                    image:
+                      type: local_image
+                      tag: <+pipeline.sequenceId>
+                      name: ghosst.azurecr.io/gosst
+              - step:
                   type: Run
                   name: Update ACA
                   identifier: Update_ACA
