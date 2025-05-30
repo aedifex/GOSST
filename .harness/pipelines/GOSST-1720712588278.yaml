@@ -90,13 +90,14 @@ pipeline:
                     config: default
                     target:
                       type: container
+                      workspace: alpine.tar
                       detection: auto
                     advanced:
                       log:
                         level: info
                     privileged: true
                     image:
-                      type: local_image
+                      type: local_archive
                       tag: <+pipeline.sequenceId>
                       name: ghosst.azurecr.io/gosst
                   when:
