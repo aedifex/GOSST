@@ -100,7 +100,7 @@ pipeline:
                       spec:
                         shell: Sh
                         command: |-
-                          docker build -t gosst.azurecr.io/gosst:<+pipeline.sequenceId>
+                          docker build -t gosst.azurecr.io/gosst:<+pipeline.sequenceId> .
 
                           docker save -o alpine.tar ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
           platform:
