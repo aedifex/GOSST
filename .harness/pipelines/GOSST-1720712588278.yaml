@@ -48,27 +48,6 @@ pipeline:
                   when:
                     stageStatus: Success
                     condition: <+pipeline.variables.runSecurityScan> == true
-              - step:
-                  type: AquaTrivy
-                  name: AquaTrivy_1
-                  identifier: AquaTrivy_1
-                  spec:
-                    mode: orchestration
-                    config: default
-                    target:
-                      type: container
-                      detection: auto
-                    advanced:
-                      log:
-                        level: info
-                    privileged: true
-                    image:
-                      type: local_image
-                      tag: <+pipeline.sequenceId>
-                      name: ghosst.azurecr.io/gosst
-                  when:
-                    stageStatus: Success
-                    condition: <+pipeline.variables.runSecurityScan> == true
               - parallel:
                   - step:
                       type: Run
@@ -102,6 +81,26 @@ pipeline:
                         command: |-
                           docker build -t gosst:262 .
                           docker save -o alpine.tar gosst:262
+              - step:
+                  type: AquaTrivy
+                  name: AquaTrivy_1
+                  identifier: AquaTrivy_1
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: container
+                      detection: auto
+                    advanced:
+                      log:
+                        level: info
+                    privileged: true
+                    image:
+                      type: local_image
+                      tag: <+pipeline.sequenceId>
+                      name: ghosst.azurecr.io/gosst
+                  when:
+                    stageStatus: Success
           platform:
             os: Linux
             arch: Amd64
