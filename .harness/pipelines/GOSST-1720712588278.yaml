@@ -45,6 +45,9 @@ pipeline:
                     tags:
                       - <+pipeline.sequenceId>
                     caching: true
+                  when:
+                    stageStatus: Success
+                    condition: <+pipeline.variables.runSecurityScan> == true
               - step:
                   type: AquaTrivy
                   name: AquaTrivy_1
@@ -87,13 +90,19 @@ pipeline:
                             --name gosst-app \
                             --resource-group GOSST \
                             --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
+                      when:
+                        stageStatus: Success
+                        condition: <+pipeline.variables.runSecurityScan> == true
                   - step:
                       type: Run
                       name: Save Image as TAR
                       identifier: Save_Image_as_TAR
                       spec:
                         shell: Sh
-                        command: docker save -o alpine.tar ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
+                        command: |-
+                          docker build -t gosst.azurecr.io/gosst:<+pipeline.sequenceId>
+
+                          docker save -o alpine.tar ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
           platform:
             os: Linux
             arch: Amd64
