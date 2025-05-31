@@ -92,7 +92,7 @@ pipeline:
                     config: default
                     target:
                       type: container
-                      workspace: alpine.tar
+                      workspace: /harness/alpine.tar
                       detection: auto
                     advanced:
                       log:
