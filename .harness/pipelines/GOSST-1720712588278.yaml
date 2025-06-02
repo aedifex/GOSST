@@ -47,42 +47,19 @@ pipeline:
                     caching: true
                   when:
                     stageStatus: Success
-              - parallel:
-                  - step:
-                      type: Run
-                      name: Update ACA
-                      identifier: Update_ACA
-                      spec:
-                        shell: Bash
-                        command: |-
-                          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+              - step:
+                  type: Run
+                  name: Save Image as TAR
+                  identifier: Save_Image_as_TAR
+                  spec:
+                    shell: Sh
+                    command: |-
+                      docker build -t gosst:<+pipeline.sequenceId> .
+                      docker save -o alpine.tar gosst:<+pipeline.sequenceId>
 
-                          az login --service-principal \
-                            --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
-                            --password '<+secrets.getValue("account.Azure_Sandbox")>' \
-                            --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
+                      tar -tvf alpine.tar | head
 
-                          az extension add --name containerapp
-
-                          az containerapp update \
-                            --name gosst-app \
-                            --resource-group GOSST \
-                            --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
-                      when:
-                        stageStatus: Success
-                  - step:
-                      type: Run
-                      name: Save Image as TAR
-                      identifier: Save_Image_as_TAR
-                      spec:
-                        shell: Sh
-                        command: |-
-                          docker build -t gosst:<+pipeline.sequenceId> .
-                          docker save -o alpine.tar gosst:<+pipeline.sequenceId>
-
-                          tar -tvf alpine.tar | head
-
-                          touch /harness/hello.txt
+                      touch /harness/hello.txt
               - step:
                   type: AquaTrivy
                   name: AquaTrivy_1
@@ -137,14 +114,24 @@ pipeline:
             steps:
               - step:
                   type: Run
-                  name: Run_1
+                  name: Update ACA
                   identifier: Run_1
                   spec:
                     shell: Sh
                     command: |-
-                      ls -alt /harness/
+                      curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-                      ls -alt
+                      az login --service-principal \
+                        --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
+                        --password '<+secrets.getValue("account.Azure_Sandbox")>' \
+                        --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
+
+                      az extension add --name containerapp
+
+                      az containerapp update \
+                        --name gosst-app \
+                        --resource-group GOSST \
+                        --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
           buildIntelligence:
             enabled: false
   properties:
