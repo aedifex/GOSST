@@ -47,7 +47,6 @@ pipeline:
                     caching: true
                   when:
                     stageStatus: Success
-                    condition: <+pipeline.variables.runSecurityScan> == true
               - parallel:
                   - step:
                       type: Run
@@ -71,7 +70,6 @@ pipeline:
                             --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
                       when:
                         stageStatus: Success
-                        condition: <+pipeline.variables.runSecurityScan> == true
                   - step:
                       type: Run
                       name: Save Image as TAR
