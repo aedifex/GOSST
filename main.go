@@ -61,11 +61,37 @@ func user_agent(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(payload))
 }
 
+// Helper function to get env vars and set a default fallback value
+func getEnv(key, fallback string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		log.Printf("WARN: %s not set, using fallback '%s'\n", key, fallback)
+		return fallback
+	}
+	return val
+}
+
 // Returns binary version in the form of SHA1 && compile time.
 func version(w http.ResponseWriter, r *http.Request) {
-	version := map[string]string{"Build version": build_id, "Build time": build_time, "GitRev": CommitSHA}
-	payload, _ := jsonIfy(version)
-	fmt.Fprintf(w, string(payload))
+	version := map[string]string{
+		"version":     build_id,
+		"build":       getEnv("BUILD_ID", "local-build"),
+		"commit":      CommitSHA,
+		"branch":      getEnv("GIT_BRANCH", "local"),
+		"timestamp":   build_time,
+		"deployed_by": getEnv("DEPLOYED_BY", "developer"),
+		"env":         getEnv("DEPLOY_ENV", "dev"),
+	}
+
+	payload, err := jsonIfy(version)
+	if err != nil {
+		http.Error(w, "error generating version payload", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(payload)
 }
 
 // Simple helper function. Some might find it useful...
