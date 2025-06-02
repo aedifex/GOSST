@@ -120,10 +120,11 @@ pipeline:
         description: ""
         type: CI
         spec:
-          cloneCodebase: true
+          cloneCodebase: false
           caching:
-            enabled: true
+            enabled: false
             override: false
+            paths: []
           platform:
             os: Linux
             arch: Amd64
@@ -139,6 +140,8 @@ pipeline:
                   spec:
                     shell: Sh
                     command: ls -alt
+          buildIntelligence:
+            enabled: false
   properties:
     ci:
       codebase:
