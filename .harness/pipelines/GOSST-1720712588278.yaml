@@ -94,6 +94,30 @@ pipeline:
             enabled: false
         description: ""
     - stage:
+        name: Approve Deployment
+        identifier: Approve_Deployment
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Approval Step
+                  identifier: Approval_Step
+                  type: HarnessApproval
+                  timeout: 14w 2d
+                  spec:
+                    approvalMessage: Please review deployment manifest and approve changes before proceeding
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - account._account_all_users
+                    isAutoRejectEnabled: false
+                    approverInputs: []
+        tags: {}
+    - stage:
         name: Deploy Artifact
         identifier: Deploy_Artifact
         description: ""
