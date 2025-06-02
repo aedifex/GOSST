@@ -81,6 +81,8 @@ pipeline:
                           docker save -o alpine.tar gosst:<+pipeline.sequenceId>
 
                           tar -tvf alpine.tar | head
+
+                          cp /harness/
               - step:
                   type: AquaTrivy
                   name: AquaTrivy_1
@@ -139,7 +141,10 @@ pipeline:
                   identifier: Run_1
                   spec:
                     shell: Sh
-                    command: ls -alt
+                    command: |-
+                      cp /harness/alpine.tar .
+
+                      ls -alt
           buildIntelligence:
             enabled: false
   properties:
