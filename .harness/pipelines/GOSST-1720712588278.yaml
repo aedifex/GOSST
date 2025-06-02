@@ -82,7 +82,7 @@ pipeline:
 
                           tar -tvf alpine.tar | head
 
-                          cp alpine.tar /harness/alpine.tar
+                          cp alpine.tar /harness/
               - step:
                   type: AquaTrivy
                   name: AquaTrivy_1
