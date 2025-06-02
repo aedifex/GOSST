@@ -114,6 +114,31 @@ pipeline:
           buildIntelligence:
             enabled: false
         description: ""
+    - stage:
+        name: Deploy Artifact
+        identifier: Deploy_Artifact
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: false
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run_1
+                  identifier: Run_1
+                  spec:
+                    shell: Sh
+                    command: ls -alt
   properties:
     ci:
       codebase:
