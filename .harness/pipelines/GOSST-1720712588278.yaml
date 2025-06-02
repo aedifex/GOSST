@@ -82,7 +82,7 @@ pipeline:
 
                           tar -tvf alpine.tar | head
 
-                          touch file.xml
+                          touch /harness/hello.txt
               - step:
                   type: AquaTrivy
                   name: AquaTrivy_1
