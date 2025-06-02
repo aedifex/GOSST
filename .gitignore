@@ -1,3 +1,6 @@
+# Ignore infra
+infra
+
 # Ignore Terraform state files
 infra/*.tfstate
 infra/*.tfstate.*
