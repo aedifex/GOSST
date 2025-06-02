@@ -83,8 +83,6 @@ pipeline:
                           tar -tvf alpine.tar | head
 
                           touch file.xml
-
-                          mv file.xml /harness/
               - step:
                   type: AquaTrivy
                   name: AquaTrivy_1
