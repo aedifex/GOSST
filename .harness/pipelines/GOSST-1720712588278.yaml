@@ -171,6 +171,8 @@ pipeline:
 
                       echo "FQDN=$FQDN"
                       echo "FQDN=$FQDN" >> output.env
+                  outputVariables:
+                    - name: FQDN
           buildIntelligence:
             enabled: false
   properties:
