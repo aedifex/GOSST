@@ -156,6 +156,21 @@ pipeline:
                         --name gosst-app \
                         --resource-group GOSST \
                         --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
+              - step:
+                  type: Run
+                  name: Verify Deployment
+                  identifier: Verify_Deployment
+                  spec:
+                    shell: Bash
+                    command: |-
+                      FQDN=$(az containerapp show \
+                                --name gosst-app \
+                                --resource-group GOSST \
+                                --query properties.configuration.ingress.fqdn \
+                                -o tsv)
+
+                      echo "FQDN=$FQDN"
+                      echo "FQDN=$FQDN" >> output.env
           buildIntelligence:
             enabled: false
   properties:
