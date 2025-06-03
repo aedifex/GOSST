@@ -156,23 +156,34 @@ pipeline:
                         --name gosst-app \
                         --resource-group GOSST \
                         --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
-              - step:
-                  type: Run
-                  name: Verify Deployment
-                  identifier: Verify_Deployment
-                  spec:
-                    shell: Bash
-                    command: |-
-                      FQDN=$(az containerapp show \
-                                --name gosst-app \
-                                --resource-group GOSST \
-                                --query properties.configuration.ingress.fqdn \
-                                -o tsv)
+              - parallel:
+                  - step:
+                      type: Run
+                      name: Verify Deployment
+                      identifier: Verify_Deployment
+                      spec:
+                        shell: Bash
+                        command: |-
+                          FQDN=$(az containerapp show \
+                                    --name gosst-app \
+                                    --resource-group GOSST \
+                                    --query properties.configuration.ingress.fqdn \
+                                    -o tsv)
 
-                      echo "FQDN=$FQDN"
-                      echo "FQDN=$FQDN" >> output.env
-                  outputVariables:
-                    - name: FQDN
+                          echo "FQDN=$FQDN"
+                          echo "FQDN=$FQDN" >> output.env
+                      outputVariables:
+                        - name: FQDN
+                  - step:
+                      type: Run
+                      name: Slack Notification to Service Owner
+                      identifier: Slack_Notification_to_Service_Owner
+                      spec:
+                        shell: Sh
+                        command: |-
+                          curl -X POST -H "Content-Type: application/json" -d '{
+                            "text": "*Deployment Notification* 🚀\nPipeline: `<+pipeline.identifier>`\nExecution ID: `<+pipeline.executionId>`\nStatus: `<+pipeline.status>`\nTriggered By: `<+pipeline.triggeredBy.email>`\nTriggered At: `<+pipeline.startTs>`\nPipeline URL: <+pipeline.executionUrl>\n\n*Service URL:* <https://gosst-app.redbeach-63fd196a.westus.azurecontainerapps.io|Open App>"
+                          }' "https://hooks.slack.com/services/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"
           buildIntelligence:
             enabled: false
   properties:
