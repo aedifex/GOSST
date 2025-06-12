@@ -12,17 +12,25 @@ pipeline:
           cloneCodebase: true
           execution:
             steps:
-              - step:
-                  type: GitClone
-                  name: GitClone_1
-                  identifier: GitClone_1
-                  spec:
-                    connectorRef: account.Github_OAuth_1720712508026
-                    repoName: aedifex/GOSST
-                    build:
-                      type: branch
+              - parallel:
+                  - step:
+                      type: GitClone
+                      name: GitClone_1
+                      identifier: GitClone_1
                       spec:
-                        branch: master
+                        connectorRef: account.Github_OAuth_1720712508026
+                        repoName: aedifex/GOSST
+                        build:
+                          type: branch
+                          spec:
+                            branch: master
+                  - step:
+                      type: Run
+                      name: Docker Login
+                      identifier: Docker_Login
+                      spec:
+                        shell: Sh
+                        command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
               - step:
                   type: Run
                   name: Compile Binary
