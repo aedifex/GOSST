@@ -30,7 +30,7 @@ pipeline:
                       identifier: Docker_Login
                       spec:
                         shell: Sh
-                        command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        command: echo "$DOCKER_PASSWORD" | docker login -u "chriscircleci" --password-stdin
               - step:
                   type: Run
                   name: Compile Binary
@@ -196,6 +196,12 @@ pipeline:
                           }' "$SLACK_URL"
           buildIntelligence:
             enabled: false
+        variables:
+          - name: DOCKER_PASSWORD
+            type: Secret
+            description: ""
+            required: false
+            value: account.Dockerhub_Password
   properties:
     ci:
       codebase:
