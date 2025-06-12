@@ -30,7 +30,7 @@ pipeline:
                       identifier: Docker_Login
                       spec:
                         shell: Sh
-                        command: echo "$DOCKER_PASSWORD" | docker login -u "chriscircleci" --password-stdin
+                        command: docker login -u "chriscircleci" -p "$DOCKER_PASSWORD"
               - step:
                   type: Run
                   name: Compile Binary
