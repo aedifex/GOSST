@@ -40,9 +40,10 @@ pipeline:
                     command: |-
                       export COMMIT_SHA="<+codebase.commitSha>"
 
-                      make build
-
-                      make docker-build
+                      make build \
+                        COMMIT_SHA="<+codebase.commitSha>" \
+                        GIT_BRANCH="<+codebase.branch>" \
+                        DEPLOYED_BY="<+pipeline.triggeredBy.email>"
               - step:
                   type: BuildAndPushACR
                   name: Build Image and Push to ACR
