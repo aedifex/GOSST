@@ -172,7 +172,6 @@ pipeline:
             value: account.Dockerhub_Password
         when:
           pipelineStatus: Success
-          condition: "false"
   properties:
     ci:
       codebase:
