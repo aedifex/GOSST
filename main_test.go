@@ -93,3 +93,21 @@ func TestVersion(t *testing.T) {
 		t.Errorf("timestamp: want %q or %q, got %q", "2025-08-15T12:34:56Z", "BUILD_TIME", timestamp)
 	}
 }
+
+func TestHealth(t *testing.T) {
+	// Health returns 200 and writes CommitSHA to the body
+	CommitSHA = "testsha"
+
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	w := httptest.NewRecorder()
+
+	health(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status want 200, got %d", w.Code)
+	}
+	got := w.Body.String()
+	if got != "testsha" {
+		t.Errorf("body want %q, got %q", "testsha", got)
+	}
+}
