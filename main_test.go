@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -111,6 +113,26 @@ func TestHealth(t *testing.T) {
 	got := w.Body.String()
 	if got != "testsha" {
 		t.Errorf("body want %q, got %q", "testsha", got)
+	}
+}
+
+func TestRuntimeInfo(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/runtime", nil)
+	w := httptest.NewRecorder()
+
+	runtimeInfo(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status want 200, got %d", w.Code)
+	}
+	body := w.Body.String()
+
+	// Must contain OS and ARCH reported by Go runtime
+	if !strings.Contains(body, runtime.GOOS) {
+		t.Errorf("expected body to contain GOOS %q, got %q", runtime.GOOS, body)
+	}
+	if !strings.Contains(body, runtime.GOARCH) {
+		t.Errorf("expected body to contain GOARCH %q, got %q", runtime.GOARCH, body)
 	}
 }
 
