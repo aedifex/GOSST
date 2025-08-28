@@ -1,5 +1,5 @@
 pipeline:
-  name: Build GOSST
+  name: Build GOSST - deploy to ACA
   identifier: Build_aedifex_GOSST_1720712593403
   projectIdentifier: default_project
   orgIdentifier: default
@@ -195,3 +195,4 @@ pipeline:
         connectorRef: account.Github_OAuth_1720712508026
         repoName: aedifex/GOSST
         build: <+input>
+  tags: {}
