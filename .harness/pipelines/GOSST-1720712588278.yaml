@@ -139,7 +139,7 @@ pipeline:
                       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
                       az login --service-principal \
-                        --username "8c8620e1-4387-4b91-8ef5-298b71d4d3ca" \
+                        --username '<+secrets.getValue("account.AzureServiceAcct")>' \
                         --password '<+secrets.getValue("account.Azure_Sandbox")>' \
                         --tenant "1ab56db7-740b-4932-a1cb-db5d0b9e945e"
 
