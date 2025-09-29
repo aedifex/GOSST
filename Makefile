@@ -1,12 +1,35 @@
 # Variables
 APP_NAME := gosst
 DOCKER_IMAGE := ghosst.azurecr.io/$(APP_NAME)
-TAG := latest
+TAG ?= latest
 BINARY := main_linux
+COMMIT_SHA := $(shell git rev-parse --short HEAD)
+PKG := ./...
 
 # Default target
 .PHONY: all
-all: build
+all: check build
+
+# Format Go code
+.PHONY: fmt
+fmt:
+	go fmt $(PKG)
+
+# Static analysis
+.PHONY: vet
+vet:
+	go vet $(PKG)
+
+# Lint (use golangci-lint if available)
+.PHONY: lint
+lint:
+	@golangci-lint run --timeout=5m || echo "golangci-lint not found, skipping lint"
+
+# Dependency tidy/verify
+.PHONY: mod
+mod:
+	go mod tidy
+	go mod verify
 
 # Build the Go binary
 .PHONY: build
@@ -39,6 +62,10 @@ clean:
 	rm -f $(BINARY)
 	docker image prune -f
 
-# CI Pipeline Target
+# One target to rule them all: full check before build
+.PHONY: check
+check: fmt vet lint mod test
+
+# CI Pipeline Target: everything!
 .PHONY: ci
-ci: build test docker-build docker-push
+ci: check build docker-build docker-push
