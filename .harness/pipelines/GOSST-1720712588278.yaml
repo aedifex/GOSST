@@ -13,17 +13,6 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: GitClone
-                  name: GitClone_1
-                  identifier: GitClone_1
-                  spec:
-                    connectorRef: account.Github_OAuth_1720712508026
-                    repoName: aedifex/GOSST
-                    build:
-                      type: branch
-                      spec:
-                        branch: master
-              - step:
                   type: Run
                   name: Go Code Coverage
                   identifier: Go_Code_Coverage
