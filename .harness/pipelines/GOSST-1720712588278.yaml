@@ -57,7 +57,7 @@ pipeline:
                   identifier: Build_Image_and_Push_to_ACR
                   spec:
                     connectorRef: account.Azure_Aedifex_Sandbox
-                    repository: ghosst.azurecr.io/gosst
+                    repository: gosst.azurecr.io/gosst
                     tags:
                       - <+pipeline.sequenceId>
                     caching: true
