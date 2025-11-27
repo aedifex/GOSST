@@ -133,6 +133,9 @@ pipeline:
                     isAutoRejectEnabled: true
                     approverInputs: []
         tags: {}
+        when:
+          pipelineStatus: Success
+          condition: "False"
     - stage:
         name: Deploy Artifact
         identifier: Deploy_Artifact
