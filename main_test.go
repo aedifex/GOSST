@@ -41,9 +41,9 @@ func TestVersion(t *testing.T) {
 	// We set both the keys and the env so either behavior is acceptable.
 
 	// Globals act as ENV KEYS (what your code expects today)
-	build_id = "test-build"
+	BuildId = "test-build"
 	CommitSHA = "COMMIT_SHA"
-	build_time = "BUILD_TIME"
+	BuildTime = "BUILD_TIME"
 
 	// Provide env values those keys would point to (CI-style)
 	t.Setenv("BUILD_ID", "build-123")

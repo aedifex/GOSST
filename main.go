@@ -76,11 +76,11 @@ func getEnv(key, fallback string) string {
 // Returns binary version in the form of SHA1 && compile time.
 func version(w http.ResponseWriter, r *http.Request) {
 	version := map[string]string{
-		"version":     build_id,
+		"version":     BuildID,
 		"build":       getEnv("BUILD_ID", "local-build"),
 		"commit":      CommitSHA,
 		"branch":      getEnv("GIT_BRANCH", "local"),
-		"timestamp":   build_time,
+		"timestamp":   BuildTime,
 		"deployed_by": getEnv("DEPLOYED_BY", "developer"),
 		"env":         getEnv("DEPLOY_ENV", "dev"),
 	}
@@ -138,7 +138,7 @@ func startServer() {
 	//})
 	mux.Handle("/", http.FileServer(http.Dir("./static")))
 
-	log.Printf("Starting server version: %v on port: %v", build_id, port)
+	log.Printf("Starting server version: %v on port: %v", BuildID, port)
 	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
