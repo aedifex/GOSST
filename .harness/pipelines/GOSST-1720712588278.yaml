@@ -46,6 +46,7 @@ pipeline:
                     shell: Bash
                     command: |-
                       export COMMIT_SHA="<+codebase.commitSha>"
+                      export DEPLOYED_BY="<+pipeline.triggeredBy.email>"
 
                       make build \
                         COMMIT_SHA="<+codebase.commitSha>" \
