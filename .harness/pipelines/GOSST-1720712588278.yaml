@@ -22,6 +22,9 @@ pipeline:
                       go test -v -race -coverprofile=../coverage.out ./...
 
                       cat ../coverage.out
+                  when:
+                    stageStatus: Success
+                    condition: "False"
               - step:
                   type: Test
                   name: Execute Tests
