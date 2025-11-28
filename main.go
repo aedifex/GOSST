@@ -21,6 +21,7 @@ import (
 var BuildTime string
 var BuildID string
 var CommitSHA string
+var GitBranch string
 
 // Takes an element, returns an array of bytes in JSON format.
 func jsonIfy(element interface{}) ([]byte, error) {
@@ -79,7 +80,7 @@ func version(w http.ResponseWriter, r *http.Request) {
 		"version":     BuildID,
 		"build":       getEnv("BUILD_ID", "local-build"),
 		"commit":      CommitSHA,
-		"branch":      getEnv("GIT_BRANCH", "local"),
+		"branch":      GitBranch,
 		"timestamp":   BuildTime,
 		"deployed_by": getEnv("DEPLOYED_BY", "developer"),
 		"env":         getEnv("DEPLOY_ENV", "dev"),
