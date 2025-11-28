@@ -44,10 +44,11 @@ func TestVersion(t *testing.T) {
 	BuildID = "test-build"
 	CommitSHA = "COMMIT_SHA"
 	BuildTime = "BUILD_TIME"
+	GitBranch = "master"
 
 	// Provide env values those keys would point to (CI-style)
 	t.Setenv("BUILD_ID", "build-123")
-	t.Setenv("GIT_BRANCH", "main")
+	t.Setenv("GIT_BRANCH", "master")
 	t.Setenv("DEPLOYED_BY", "unit-test")
 	t.Setenv("DEPLOY_ENV", "test")
 	t.Setenv("COMMIT_SHA", "deadbeef")
