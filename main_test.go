@@ -78,7 +78,7 @@ func TestVersion(t *testing.T) {
 		t.Errorf("build: want %q, got %q", "build-123", got["build"])
 	}
 	if got["branch"] != "main" {
-		t.Errorf("branch: want %q, got %q", "main", got["branch"])
+		t.Errorf("branch: want %q, got %q", "master", got["branch"])
 	}
 	if got["deployed_by"] != "unit-test" {
 		t.Errorf("deployed_by: want %q, got %q", "unit-test", got["deployed_by"])
