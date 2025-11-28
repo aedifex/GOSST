@@ -48,7 +48,7 @@ build:
 			-X main.CommitSHA=${COMMIT_SHA} \
 			-X main.BuildTime=${BUILD_TIME} \
 			-X main.BuildID=${BUILD_ID} \
-			-X main.GitBranch=${GIT_BRANCH} \" \
+			-X main.GitBranch=${GIT_BRANCH} " \
 		-o ${BINARY} .
 
 
