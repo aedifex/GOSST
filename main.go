@@ -17,7 +17,9 @@ import (
 )
 
 // These values will be used to version the binary.
-var build_id, build_time = "dev", "dev"
+// var build_id, build_time = "dev", "dev"
+var BuildTime string
+var BuildID string
 var CommitSHA string
 
 // Takes an element, returns an array of bytes in JSON format.
