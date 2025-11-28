@@ -6,6 +6,12 @@ BINARY := main_linux
 COMMIT_SHA := $(shell git rev-parse --short HEAD)
 PKG := ./...
 
+# COMMIT_SHA := $(shell git rev-parse --short HEAD)
+GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
+DEPLOYED_BY := developer
+BUILD_ID := dev
+
 # Default target
 .PHONY: all
 all: check build
@@ -34,7 +40,17 @@ mod:
 # Build the Go binary
 .PHONY: build
 build:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X 'main.CommitSHA=$(COMMIT_SHA)'" -o $(BINARY) .
+	GOOS=linux \
+	GOARCH=amd64 \
+	CGO_ENABLED=0 \
+	go build \
+		-ldflags "\
+			-X main.CommitSHA=${COMMIT_SHA} \
+			-X main.BuildTime=${BUILD_TIME} \
+			-X main.BuildID=${BUILD_ID} \
+			-X main.GitBranch=${GIT_BRANCH} \" \
+		-o ${BINARY} .
+
 
 # Run the application locally
 .PHONY: run
