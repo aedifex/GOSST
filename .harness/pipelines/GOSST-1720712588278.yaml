@@ -13,28 +13,18 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Test
-                  name: Execute Tests
-                  identifier: Execute_Tests
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
                   spec:
                     shell: Sh
                     command: |-
-                      # go install github.com/jstemmer/go-junit-report/v2@latest
-
                       make test \
                         COMMIT_SHA="<+codebase.commitSha>" \
                         GIT_BRANCH="<+codebase.branch>" \
                         BUILD_TIME="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
                         DEPLOYED_BY="<+pipeline.triggeredBy.email>" \
                         BUILD_ID="<+pipeline.sequenceId>"
-
-                      # cat report.out | $HOME/go/bin/go-junit-report -set-exit-code > report.xml
-                    reports:
-                      type: JUnit
-                      spec:
-                        paths:
-                          - report.xml
-                    intelligenceMode: true
               - step:
                   type: Run
                   name: Compile Binary
