@@ -146,8 +146,8 @@ pipeline:
 
                       az containerapp update \
                         --name gosst-app \
-                        --resource-group GOSST \
-                        --image ghosst.azurecr.io/gosst:<+pipeline.sequenceId>
+                        --resource-group gosst \
+                        --image gosst.azurecr.io/gosst:<+pipeline.sequenceId>
               - parallel:
                   - step:
                       type: Run
@@ -158,7 +158,7 @@ pipeline:
                         command: |-
                           FQDN=$(az containerapp show \
                                     --name gosst-app \
-                                    --resource-group GOSST \
+                                    --resource-group gosst \
                                     --query properties.configuration.ingress.fqdn \
                                     -o tsv)
 
