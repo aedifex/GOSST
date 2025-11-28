@@ -62,7 +62,7 @@ run: build
 test:
 	GOOS=linux \
 	GOARCH=amd64 \
-	CGO_ENABLED=0 \
+	CGO_ENABLED=1 \
 	go test -v -race \
 		-ldflags "\
 			-X main.CommitSHA=${COMMIT_SHA} \
