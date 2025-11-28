@@ -13,19 +13,6 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Run
-                  name: Go Code Coverage
-                  identifier: Go_Code_Coverage
-                  spec:
-                    shell: Sh
-                    command: |-
-                      go test -v -race -coverprofile=../coverage.out ./...
-
-                      cat ../coverage.out
-                  when:
-                    stageStatus: Success
-                    condition: "False"
-              - step:
                   type: Test
                   name: Execute Tests
                   identifier: Execute_Tests
