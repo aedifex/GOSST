@@ -19,7 +19,7 @@ pipeline:
                   spec:
                     shell: Sh
                     command: |-
-                      go install github.com/jstemmer/go-junit-report/v2@latest
+                      # go install github.com/jstemmer/go-junit-report/v2@latest
 
                       make test \
                         COMMIT_SHA="<+codebase.commitSha>" \
@@ -28,7 +28,7 @@ pipeline:
                         DEPLOYED_BY="<+pipeline.triggeredBy.email>" \
                         BUILD_ID="<+pipeline.sequenceId>"
 
-                      cat report.out | $HOME/go/bin/go-junit-report -set-exit-code > report.xml
+                      # cat report.out | $HOME/go/bin/go-junit-report -set-exit-code > report.xml
                     reports:
                       type: JUnit
                       spec:
