@@ -1,8 +1,8 @@
-# Set environment variables
-ENV DEPLOY_ENV=from_docker
-
 # Start from a minimal base image
 FROM --platform=linux/amd64 alpine:latest
+
+# Set environment variables
+ENV DEPLOY_ENV=from_docker
 
 # Set the working directory
 WORKDIR /app
