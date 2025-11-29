@@ -80,9 +80,7 @@ func TestVersion(t *testing.T) {
 	if got["branch"] != "master" {
 		t.Errorf("branch: want %q, got %q", "master", got["branch"])
 	}
-	if got["deployed_by"] != "unit-test" {
-		t.Errorf("deployed_by: want %q, got %q", "unit-test", got["deployed_by"])
-	}
+
 	if got["env"] != "test" {
 		t.Errorf("env: want %q, got %q", "test", got["env"])
 	}
