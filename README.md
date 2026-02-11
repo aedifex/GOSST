@@ -1,19 +1,38 @@
 # 🛰️ GOSST — Go Service Skeleton Template
 
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
-Minimal, CI/CD-native Go service. Built for clarity, speed, and Harness-first deployment workflows.
+
+Minimal, CI/CD-native Go service built specifically to demonstrate real-world delivery workflows in **Harness CI/CD**.
 
 ---
 
 ## 🚀 What is GOSST?
 
-**GOSST** is a skeletal web service written in Go, containerized with Docker, and purpose-built to integrate with modern CI/CD platforms — especially [Harness](https://harness.io).
+**GOSST** is a production-minded Go web service, containerized with Docker and designed from day one to run inside a modern CI/CD pipeline — with first-class support for [Harness](https://harness.io).
 
 It exists to:
 
-- Demo real-world DevOps patterns
-- Validate infra pipelines (build → push → deploy)
-- Give you a clean slate to expand into microservices or API development
+- Demonstrate real CI → Build → Push → Deploy workflows
+- Validate cloud-native deployment patterns
+- Serve as a clean foundation for microservices or API development
+- Showcase Harness-native pipeline automation in a minimal, reproducible way
+
+---
+
+## ⚙️ Harness-First by Design
+
+GOSST plugs directly into **Harness CI/CD**.
+
+Typical enterprise flow:
+
+1. Git push triggers Harness pipeline
+2. Harness builds the container image
+3. Image is pushed to Azure Container Registry
+4. Harness deploys to Azure Container Apps
+
+Pipeline configuration lives in `.harness/` and is structured for clarity and extensibility.
+
+The goal: clarity over complexity. No magic. Just reproducible delivery.
 
 ---
 
@@ -21,12 +40,12 @@ It exists to:
 
 ```
 .
-├── main.go         # Basic HTTP server
-├── Dockerfile      # Slim image for container runtime
-├── Makefile        # Helper targets for build/push
-├── static/         # Optional static file support
-├── infra/          # IaC (if used)
-└── .harness/       # Harness pipeline config
+├── main.go         # Minimal HTTP service
+├── Dockerfile      # Slim container image
+├── Makefile        # Build + helper targets
+├── static/         # Optional static content
+├── infra/          # IaC (optional extension)
+└── .harness/       # Harness CI/CD pipeline configs
 ```
 
 ---
@@ -39,8 +58,8 @@ go run main.go
 make build && ./gosst
 ```
 
-Visit: http://localhost:8080
-You should see: `hello from GOSST`
+Visit: http://localhost:8080  
+Response: `hello from GOSST`
 
 ---
 
@@ -51,40 +70,29 @@ docker build -t <your-acr>.azurecr.io/gosst:<tag> .
 docker push <your-acr>.azurecr.io/gosst:<tag>
 ```
 
----
-
-## ⚙️ CI/CD (Harness-native)
-
-GOSST is designed to slot directly into a [Harness CI/CD pipeline](https://harness.io/docs).
-
-Typical flow:
-
-1. **Git push** triggers pipeline
-2. **Harness builds the image**
-3. **Harness pushes to Azure Container Registry**
-4. **Harness deploys to Azure Container Apps**
-
-You can find pipeline configs in `.harness/`.
+Designed to mirror what the Harness pipeline performs automatically.
 
 ---
 
-## 🔭 Future Ideas
+## 🔭 Extension Ideas
 
-- Add health/liveness probes
-- Expose an internal `/metrics` endpoint
-- Wire in a real API layer
-- Add unit tests and coverage to the pipeline
-- Deploy across multiple environments (dev, staging, prod)
+- Add readiness + liveness probes
+- Expose `/metrics` endpoint
+- Introduce API routes
+- Add unit tests + coverage gates
+- Implement multi-environment promotion (dev → staging → prod)
+- Integrate STO or policy enforcement in pipeline
 
 ---
 
 ## 🧠 Author
 
 Built by [Christopher Black](https://github.com/aedifex)
-Project goal: combine simplicity with industrial-grade deployment readiness.
+
+Intent: demonstrate how simplicity and enterprise-grade CI/CD automation can coexist — especially within Harness.
 
 ---
 
 ## 🪪 License
 
-MIT — use it, break it, extend it. All good.
+MIT — extend it, deploy it, break it, improve it.
