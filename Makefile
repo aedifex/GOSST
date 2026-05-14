@@ -9,7 +9,7 @@ PKG := ./...
 # COMMIT_SHA := $(shell git rev-parse --short HEAD)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
-DEPLOYED_BY := developer
+DEPLOYED_BY ?= developer
 BUILD_ID ?= mandalorian
 
 # Default target
