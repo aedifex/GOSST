@@ -10,7 +10,7 @@ PKG := ./...
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 DEPLOYED_BY := developer
-BUILD_ID := dev
+BUILD_ID ?= mandalorian
 
 # Default target
 .PHONY: all
