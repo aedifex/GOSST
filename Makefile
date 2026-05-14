@@ -45,11 +45,11 @@ build:
 	CGO_ENABLED=0 \
 	go build \
 		-ldflags "\
-			-X main.CommitSHA=${COMMIT_SHA} \
-			-X main.BuildTime=${BUILD_TIME} \
-			-X main.BuildID=${BUILD_ID} \
-			-X main.GitBranch=${GIT_BRANCH} \
-			-X main.DeployedBy=${DEPLOYED_BY} " \
+			-X 'main.CommitSHA=${COMMIT_SHA}' \
+			-X 'main.BuildTime=${BUILD_TIME}' \
+			-X 'main.BuildID=${BUILD_ID}' \
+			-X 'main.GitBranch=${GIT_BRANCH}' \
+			-X 'main.DeployedBy=${DEPLOYED_BY}' " \
 		-o ${BINARY} .
 
 
