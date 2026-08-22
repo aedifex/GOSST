@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"time"
 )
 
 // These values will be used to version the binary.
@@ -23,6 +24,9 @@ var BuildID string
 var CommitSHA string
 var GitBranch string
 var DeployedBy string
+
+// Stamped when the process boots so we can report uptime.
+var startTime = time.Now()
 
 // Takes an element, returns an array of bytes in JSON format.
 func jsonIfy(element interface{}) ([]byte, error) {
@@ -56,6 +60,37 @@ func get(w http.ResponseWriter, r *http.Request) {
 // Returns OS & ARCH info about the host.
 func runtimeInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Ave mundus! I'm running on %s with an %s CPU ", runtime.GOOS, runtime.GOARCH)
+}
+
+// Returns identity & vitals for the host that served this request.
+// Handy behind a load balancer: hit it a few times and watch the
+// hostname change as you're bounced between replicas.
+func hostz(w http.ResponseWriter, r *http.Request) {
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown"
+	}
+
+	host := map[string]interface{}{
+		"hostname":   hostname,
+		"pid":        os.Getpid(),
+		"uptime":     time.Since(startTime).Round(time.Second).String(),
+		"os":         runtime.GOOS,
+		"arch":       runtime.GOARCH,
+		"num_cpu":    runtime.NumCPU(),
+		"gomaxprocs": runtime.GOMAXPROCS(0),
+		"goroutines": runtime.NumGoroutine(),
+	}
+
+	payload, err := jsonIfy(host)
+	if err != nil {
+		http.Error(w, "error generating hostz payload", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(payload)
 }
 
 // Returns user agent associated with request.
@@ -129,6 +164,7 @@ func startServer() {
 	mux.HandleFunc("/whatismyip", whatismyip)
 	mux.HandleFunc("/get", get)
 	mux.HandleFunc("/runtime", runtimeInfo)
+	mux.HandleFunc("/hostz", hostz)
 	mux.HandleFunc("/version", version)
 	mux.HandleFunc("/user-agent", user_agent)
 	mux.HandleFunc("/health", health)
