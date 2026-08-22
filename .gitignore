@@ -14,6 +14,12 @@ infra/.terraform/
 # Ignore Terraform lock file (optional, if it shouldn't be shared)
 infra/.terraform.lock.hcl
 
+# Build output
+main_linux
+
+# macOS cruft
+.DS_Store
+
 # Misc scratchpad
 misc.txt
 
