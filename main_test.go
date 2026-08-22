@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"runtime"
 	"strings"
 	"testing"
@@ -132,6 +133,74 @@ func TestRuntimeInfo(t *testing.T) {
 	}
 	if !strings.Contains(body, runtime.GOARCH) {
 		t.Errorf("expected body to contain GOARCH %q, got %q", runtime.GOARCH, body)
+	}
+}
+
+func TestHostz(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/hostz", nil)
+	w := httptest.NewRecorder()
+
+	hostz(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status want 200, got %d", w.Code)
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Content-Type want application/json, got %q", ct)
+	}
+
+	// Mixed value types in the payload, so decode loosely.
+	var got map[string]interface{}
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatalf("json decode: %v", err)
+	}
+
+	// Strings we can compare exactly against the running process.
+	if want, err := os.Hostname(); err == nil {
+		if got["hostname"] != want {
+			t.Errorf("hostname: want %q, got %v", want, got["hostname"])
+		}
+	}
+	if got["os"] != runtime.GOOS {
+		t.Errorf("os: want %q, got %v", runtime.GOOS, got["os"])
+	}
+	if got["arch"] != runtime.GOARCH {
+		t.Errorf("arch: want %q, got %v", runtime.GOARCH, got["arch"])
+	}
+
+	// JSON numbers decode as float64, so convert before comparing.
+	exact := []struct {
+		key  string
+		want int
+	}{
+		{"pid", os.Getpid()},
+		{"num_cpu", runtime.NumCPU()},
+	}
+	for _, tc := range exact {
+		n, ok := got[tc.key].(float64)
+		if !ok {
+			t.Errorf("%s: want a number, got %T", tc.key, got[tc.key])
+			continue
+		}
+		if int(n) != tc.want {
+			t.Errorf("%s: want %d, got %d", tc.key, tc.want, int(n))
+		}
+	}
+
+	// These move around at runtime, so only assert they're sane.
+	for _, key := range []string{"gomaxprocs", "goroutines"} {
+		if n, ok := got[key].(float64); !ok || n < 1 {
+			t.Errorf("%s: want >= 1, got %v", key, got[key])
+		}
+	}
+
+	// Uptime is a rounded Duration string ("0s", "1m30s") - must parse back.
+	uptime, ok := got["uptime"].(string)
+	if !ok {
+		t.Fatalf("uptime: want a string, got %T", got["uptime"])
+	}
+	if _, err := time.ParseDuration(uptime); err != nil {
+		t.Errorf("uptime %q is not a valid duration: %v", uptime, err)
 	}
 }
 

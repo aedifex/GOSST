@@ -61,16 +61,8 @@ run: build
 # Run tests
 .PHONY: test
 test:
-	GOOS=linux \
-	GOARCH=amd64 \
 	CGO_ENABLED=1 \
-	go test -v -race \
-		-ldflags "\
-			-X main.CommitSHA=${COMMIT_SHA} \
-			-X main.BuildTime=${BUILD_TIME} \
-			-X main.BuildID=${BUILD_ID} \
-			-X main.GitBranch=${GIT_BRANCH} " \
-		./...
+	go test -v -race $(PKG)
 
 
 # Build the Docker image
