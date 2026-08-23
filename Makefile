@@ -4,6 +4,12 @@ DOCKER_IMAGE := ghosst.azurecr.io/$(APP_NAME)
 TAG ?= latest
 BINARY := main_linux
 COVERAGE := coverage.out
+JUNIT := junit.xml
+
+# gotestsum wraps `go test` to emit JUnit XML for the Harness Tests tab.
+# Installed on demand; override if it lives elsewhere on your PATH.
+GOPATH_BIN := $(shell go env GOPATH)/bin
+GOTESTSUM ?= $(GOPATH_BIN)/gotestsum
 COMMIT_SHA := $(shell git rev-parse --short HEAD)
 PKG := ./...
 
@@ -62,8 +68,10 @@ run: build
 # Run tests
 .PHONY: test
 test:
+	@test -x $(GOTESTSUM) || go install gotest.tools/gotestsum@latest
 	CGO_ENABLED=1 \
-	go test -v -race -covermode=atomic -coverprofile=$(COVERAGE) $(PKG)
+	$(GOTESTSUM) --junitfile $(JUNIT) --format testname -- \
+		-race -covermode=atomic -coverprofile=$(COVERAGE) $(PKG)
 
 
 # Build the Docker image
@@ -79,7 +87,7 @@ docker-push: docker-build
 # Clean up local files
 .PHONY: clean
 clean:
-	rm -f $(BINARY) $(COVERAGE)
+	rm -f $(BINARY) $(COVERAGE) $(JUNIT)
 	docker image prune -f
 
 # One target to rule them all: full check before build

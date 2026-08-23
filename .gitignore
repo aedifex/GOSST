@@ -20,6 +20,9 @@ main_linux
 # Test coverage profile
 coverage.out
 
+# JUnit test report
+junit.xml
+
 # macOS cruft
 .DS_Store
 
