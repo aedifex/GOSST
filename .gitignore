@@ -17,6 +17,9 @@ infra/.terraform.lock.hcl
 # Build output
 main_linux
 
+# Test coverage profile
+coverage.out
+
 # macOS cruft
 .DS_Store
 

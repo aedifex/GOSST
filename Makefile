@@ -3,6 +3,7 @@ APP_NAME := gosst
 DOCKER_IMAGE := ghosst.azurecr.io/$(APP_NAME)
 TAG ?= latest
 BINARY := main_linux
+COVERAGE := coverage.out
 COMMIT_SHA := $(shell git rev-parse --short HEAD)
 PKG := ./...
 
@@ -62,7 +63,7 @@ run: build
 .PHONY: test
 test:
 	CGO_ENABLED=1 \
-	go test -v -race $(PKG)
+	go test -v -race -covermode=atomic -coverprofile=$(COVERAGE) $(PKG)
 
 
 # Build the Docker image
@@ -78,7 +79,7 @@ docker-push: docker-build
 # Clean up local files
 .PHONY: clean
 clean:
-	rm -f $(BINARY)
+	rm -f $(BINARY) $(COVERAGE)
 	docker image prune -f
 
 # One target to rule them all: full check before build
