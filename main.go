@@ -149,15 +149,9 @@ func whatismyip(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", ipAddress)
 }
 
-func startServer() {
-	// PORT is a good example of elements we'd like to be able to configure.
-	var port string
-	if os.Getenv("PORT") != "" {
-		port = ":" + os.Getenv("PORT")
-	} else {
-		port = ":8000"
-	}
-
+// newMux builds the router with every route the service exposes.
+// Shared by startServer and the tests so the two can never drift apart.
+func newMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	// *** Multiplexer && Routes ***
@@ -175,6 +169,20 @@ func startServer() {
 	//	http.ServeFile(w, r, "./static/index.html")
 	//})
 	mux.Handle("/", http.FileServer(http.Dir("./static")))
+
+	return mux
+}
+
+func startServer() {
+	// PORT is a good example of elements we'd like to be able to configure.
+	var port string
+	if os.Getenv("PORT") != "" {
+		port = ":" + os.Getenv("PORT")
+	} else {
+		port = ":8000"
+	}
+
+	mux := newMux()
 
 	log.Printf("Starting server version: %v on port: %v", BuildID, port)
 	err := http.ListenAndServe(port, mux)
