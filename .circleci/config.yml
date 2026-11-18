@@ -1,0 +1,115 @@
+# GOSST CircleCI pipeline — build only, no deployment.
+#
+#   fmt ──┐
+#         ├─> test ─> build ─> smoke ─> package
+#   vet ──┘
+#
+# The artifact is the linux/amd64 `main_linux` binary (with build identity
+# stamped in via -ldflags), published with a SHA-256 checksum under the
+# job's Artifacts tab.
+version: 2.1
+
+executors:
+  go:
+    docker:
+      - image: cimg/go:1.23
+    resource_class: medium
+
+jobs:
+  fmt:
+    executor: go
+    steps:
+      - checkout
+      - run:
+          name: gofmt
+          command: |
+            unformatted=$(gofmt -l .)
+            if [ -n "$unformatted" ]; then
+              echo "Files need gofmt:"; echo "$unformatted"; exit 1
+            fi
+
+  vet:
+    executor: go
+    steps:
+      - checkout
+      - run: make vet
+
+  test:
+    executor: go
+    steps:
+      - checkout
+      - run:
+          name: Unit tests (race + coverage + JUnit)
+          command: |
+            mkdir -p test-results
+            make test JUNIT=test-results/junit.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: coverage.out
+
+  build:
+    executor: go
+    steps:
+      - checkout
+      - run:
+          name: Build linux/amd64 binary
+          command: |
+            make build \
+              BUILD_ID="circle-${CIRCLE_BUILD_NUM}" \
+              GIT_BRANCH="${CIRCLE_BRANCH:-detached}" \
+              DEPLOYED_BY=circleci
+      - persist_to_workspace:
+          root: .
+          paths: [main_linux]
+
+  smoke:
+    executor: go
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Boot the binary and hit key routes
+          command: |
+            PORT=8000 ./main_linux > server.log 2>&1 &
+            for i in $(seq 1 20); do
+              curl -fsS localhost:8000/health >/dev/null 2>&1 && break
+              sleep 0.5
+            done
+            set -x
+            test -n "$(curl -fsS localhost:8000/health)"
+            test "$(curl -fsS localhost:8000/faux)" = "CI Demo!"
+            curl -fsS localhost:8000/version
+            curl -fsS localhost:8000/hostz
+      - store_artifacts:
+          path: server.log
+
+  package:
+    executor: go
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Checksum + stage artifact
+          command: |
+            mkdir -p dist
+            mv main_linux dist/
+            (cd dist && sha256sum main_linux > main_linux.sha256)
+            cat dist/main_linux.sha256
+      - store_artifacts:
+          path: dist
+          destination: gosst
+
+workflows:
+  build:
+    jobs:
+      - fmt
+      - vet
+      - test:
+          requires: [fmt, vet]
+      - build:
+          requires: [test]
+      - smoke:
+          requires: [build]
+      - package:
+          requires: [smoke]
