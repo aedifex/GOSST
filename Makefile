@@ -2,7 +2,11 @@
 APP_NAME := gosst
 DOCKER_IMAGE := ghosst.azurecr.io/$(APP_NAME)
 TAG ?= latest
-BINARY := main_linux
+# Build target platform + output name. Defaults produce the linux/amd64
+# binary the Dockerfile expects; CI overrides them for the build matrix.
+GOOS ?= linux
+GOARCH ?= amd64
+BINARY ?= main_linux
 COVERAGE := coverage.out
 JUNIT := junit.xml
 
@@ -47,8 +51,8 @@ mod:
 # Build the Go binary
 .PHONY: build
 build:
-	GOOS=linux \
-	GOARCH=amd64 \
+	GOOS=$(GOOS) \
+	GOARCH=$(GOARCH) \
 	CGO_ENABLED=0 \
 	go build \
 		-ldflags "\

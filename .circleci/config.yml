@@ -1,12 +1,13 @@
 # GOSST CircleCI pipeline — build only, no deployment.
 #
-#   fmt ──┐
-#         ├─> test ─> build ─> smoke ─> package
-#   vet ──┘
+#   fmt ─┐   ┌─ test-go1.22 ─┐   ┌─ build-linux-amd64 ──┬─ smoke ─┐
+#        ├───┼─ test-go1.23 ─┼───┼─ build-linux-arm64 ──┤         ├─ package
+#   vet ─┘   └─ test-go1.24 ─┘   ├─ build-darwin-amd64 ─┤         │
+#                                └─ build-darwin-arm64 ─┴─────────┘
 #
-# The artifact is the linux/amd64 `main_linux` binary (with build identity
-# stamped in via -ldflags), published with a SHA-256 checksum under the
-# job's Artifacts tab.
+# Artifacts: one binary per platform (gosst-<os>-<arch>, build identity
+# stamped in via -ldflags) plus SHA256SUMS, under the package job's
+# Artifacts tab.
 version: 2.1
 
 executors:
@@ -35,33 +36,51 @@ jobs:
       - run: make vet
 
   test:
-    executor: go
+    parameters:
+      go:
+        type: string
+    docker:
+      - image: cimg/go:<< parameters.go >>
+    resource_class: medium
     steps:
       - checkout
       - run:
-          name: Unit tests (race + coverage + JUnit)
+          name: Unit tests on Go << parameters.go >> (race + coverage + JUnit)
           command: |
+            go version
             mkdir -p test-results
             make test JUNIT=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: coverage.out
+          destination: coverage-go<< parameters.go >>.out
 
   build:
+    parameters:
+      os:
+        type: string
+      arch:
+        type: string
     executor: go
     steps:
       - checkout
       - run:
-          name: Build linux/amd64 binary
+          name: Build << parameters.os >>/<< parameters.arch >>
           command: |
+            mkdir -p dist
             make build \
+              GOOS=<< parameters.os >> \
+              GOARCH=<< parameters.arch >> \
+              BINARY=dist/gosst-<< parameters.os >>-<< parameters.arch >> \
               BUILD_ID="circle-${CIRCLE_BUILD_NUM}" \
               GIT_BRANCH="${CIRCLE_BRANCH:-detached}" \
               DEPLOYED_BY=circleci
+            file dist/gosst-<< parameters.os >>-<< parameters.arch >> || true
       - persist_to_workspace:
           root: .
-          paths: [main_linux]
+          paths:
+            - dist/gosst-<< parameters.os >>-<< parameters.arch >>
 
   smoke:
     executor: go
@@ -69,9 +88,10 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Boot the binary and hit key routes
+          name: Boot the linux/amd64 binary and hit key routes
           command: |
-            PORT=8000 ./main_linux > server.log 2>&1 &
+            chmod +x dist/gosst-linux-amd64
+            PORT=8000 ./dist/gosst-linux-amd64 > server.log 2>&1 &
             for i in $(seq 1 20); do
               curl -fsS localhost:8000/health >/dev/null 2>&1 && break
               sleep 0.5
@@ -90,12 +110,12 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Checksum + stage artifact
+          name: Checksum + stage artifacts
           command: |
-            mkdir -p dist
-            mv main_linux dist/
-            (cd dist && sha256sum main_linux > main_linux.sha256)
-            cat dist/main_linux.sha256
+            cd dist
+            sha256sum gosst-* > SHA256SUMS
+            ls -l
+            cat SHA256SUMS
       - store_artifacts:
           path: dist
           destination: gosst
@@ -106,10 +126,21 @@ workflows:
       - fmt
       - vet
       - test:
+          name: test-go<< matrix.go >>
+          matrix:
+            alias: test-all
+            parameters:
+              go: ["1.22", "1.23", "1.24"]
           requires: [fmt, vet]
       - build:
-          requires: [test]
+          name: build-<< matrix.os >>-<< matrix.arch >>
+          matrix:
+            alias: build-all
+            parameters:
+              os: [linux, darwin]
+              arch: [amd64, arm64]
+          requires: [test-all]
       - smoke:
-          requires: [build]
+          requires: [build-linux-amd64]
       - package:
-          requires: [smoke]
+          requires: [build-all, smoke]
