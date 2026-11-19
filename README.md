@@ -141,12 +141,6 @@ The image copies a prebuilt `main_linux`, so run `make build` first.
 
 ---
 
-## 📜 History
-
-GOSST was originally built to demo Harness CI/CD. That pipeline config lives on the [`circleci-project-setup`](https://github.com/aedifex/GOSST/tree/circleci-project-setup) branch.
-
----
-
 ## 🧠 Author
 
 Built by [Christopher Black](https://github.com/aedifex)
