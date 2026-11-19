@@ -56,16 +56,20 @@ The pipeline builds artifacts only — it doesn't push images or deploy. The goa
 | Route | Returns |
 | --- | --- |
 | `/health` | `200` with the build's commit SHA as the body — health check *and* "which build am I talking to" |
-| `/version` | JSON build identity: commit, branch, build ID, timestamp, deployer, env |
-| `/hostz` | JSON host vitals: hostname, pid, uptime, os/arch, num_cpu, gomaxprocs, goroutines |
+| `/version` | JSON build identity: commit, branch, build ID, timestamp, deployer, env, Go version |
+| `/hostz` | JSON host vitals: hostname, pid, uptime, os/arch, Go version, num_cpu, gomaxprocs, goroutines |
 | `/runtime` | Plain-text OS + CPU architecture |
-| `/whatismyip` | The caller's IP address |
-| `/user-agent` | JSON echo of the request's User-Agent |
-| `/get` | JSON echo of the request method |
+| `/whatismyip` | The caller's IP address (honours `X-Forwarded-For` behind a proxy) |
+| `/user-agent` | JSON echo of the request's User-Agent, as a string |
+| `/get` | httpbin-style JSON echo: method, path, query args, headers, caller IP — any method |
 | `/faux` | `CI Demo!` — the "did the pipeline actually ship" canary |
 | `/` | Static content from `static/` |
 
-Build identity on `/version` is stamped at compile time via `-ldflags -X` (see the `build` target); `BUILD_ID` and `DEPLOY_ENV` are read from the environment at runtime and fall back to defaults.
+Every route except `/get` is GET-only: `HEAD` works, anything else gets a `405`.
+
+Build identity on `/version` is stamped at compile time via `-ldflags -X` (see the `build` target); `BUILD_ID` and `DEPLOY_ENV` are read from the environment once at startup and fall back to defaults.
+
+The server sets read/write/idle timeouts and shuts down gracefully on `SIGTERM` / Ctrl-C, letting in-flight requests finish (up to 10s).
 
 Behind a load balancer, curl `/hostz` a few times and watch `hostname` change as you're bounced between replicas.
 

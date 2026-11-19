@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -50,6 +49,13 @@ func wantStatus(t *testing.T, w *httptest.ResponseRecorder, want int) {
 	}
 }
 
+func wantJSONContentType(t *testing.T, w *httptest.ResponseRecorder) {
+	t.Helper()
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Content-Type: want application/json, got %q", ct)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // /health
 // ---------------------------------------------------------------------------
@@ -92,21 +98,72 @@ func TestFaux(t *testing.T) {
 // /get
 // ---------------------------------------------------------------------------
 
-func TestGet(t *testing.T) {
-	methods := []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch}
-	for _, method := range methods {
-		t.Run(method, func(t *testing.T) {
-			w := serve(get, httptest.NewRequest(method, "/get", nil))
+type getResponse struct {
+	Method  string              `json:"method"`
+	Path    string              `json:"path"`
+	Args    map[string][]string `json:"args"`
+	Headers map[string]string   `json:"headers"`
+	Origin  string              `json:"origin"`
+}
 
-			wantStatus(t, w, http.StatusOK)
-			var got map[string]string
-			decodeJSON(t, w, &got)
-			want := map[string]string{"Request method": method}
-			if !reflect.DeepEqual(got, want) {
-				t.Errorf("body: want %v, got %v", want, got)
+func TestGet(t *testing.T) {
+	t.Run("echoes method", func(t *testing.T) {
+		// "GE%sT" is a legal HTTP method token. It used to be passed to
+		// Fprintf as a format string and come back as "GE%!s(MISSING)T".
+		methods := []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, "GE%sT"}
+		for _, method := range methods {
+			t.Run(method, func(t *testing.T) {
+				w := serve(get, httptest.NewRequest(method, "/get", nil))
+
+				wantStatus(t, w, http.StatusOK)
+				wantJSONContentType(t, w)
+				var got getResponse
+				decodeJSON(t, w, &got)
+				if got.Method != method {
+					t.Errorf("method: want %q, got %q", method, got.Method)
+				}
+			})
+		}
+	})
+
+	t.Run("echoes path, args, headers and origin", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/get?a=1&a=2&b=x", nil) // RemoteAddr 192.0.2.1:1234
+		req.Header.Set("X-Demo", "hi")
+		req.Header.Add("Accept", "text/plain")
+		req.Header.Add("Accept", "application/json")
+		w := serve(get, req)
+
+		wantStatus(t, w, http.StatusOK)
+		var got getResponse
+		decodeJSON(t, w, &got)
+
+		if got.Path != "/get" {
+			t.Errorf("path: want /get, got %q", got.Path)
+		}
+		if want := map[string][]string{"a": {"1", "2"}, "b": {"x"}}; !reflect.DeepEqual(got.Args, want) {
+			t.Errorf("args: want %v, got %v", want, got.Args)
+		}
+		if got.Headers["X-Demo"] != "hi" {
+			t.Errorf("headers[X-Demo]: want %q, got %q", "hi", got.Headers["X-Demo"])
+		}
+		if want := "text/plain, application/json"; got.Headers["Accept"] != want {
+			t.Errorf("repeated header should be joined: want %q, got %q", want, got.Headers["Accept"])
+		}
+		if got.Origin != "192.0.2.1" {
+			t.Errorf("origin: want %q, got %q", "192.0.2.1", got.Origin)
+		}
+	})
+
+	t.Run("empty args and headers are objects, not null", func(t *testing.T) {
+		w := serve(get, httptest.NewRequest(http.MethodGet, "/get", nil))
+		var raw map[string]json.RawMessage
+		decodeJSON(t, w, &raw)
+		for _, key := range []string{"args", "headers"} {
+			if string(raw[key]) == "null" {
+				t.Errorf("%s: want {}, got null", key)
 			}
-		})
-	}
+		}
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -132,17 +189,17 @@ func TestWhatIsMyIP(t *testing.T) {
 		name       string
 		remoteAddr string
 		xff        string
+		status     int
 		want       string
 	}{
-		{"ipv4", "203.0.113.7:51234", "", "203.0.113.7"},
-		{"ipv6", "[2001:db8::1]:443", "", "2001:db8::1"},
-		{"ipv6 loopback", "[::1]:8080", "", "::1"},
-		// NOTE: X-Forwarded-For is ignored. Behind a load balancer / ACA
-		// ingress this reports the proxy's IP, not the caller's.
-		{"ignores X-Forwarded-For", "10.0.0.5:4000", "198.51.100.9", "10.0.0.5"},
-		// NOTE: the SplitHostPort error is swallowed by checkErr, so a bad
-		// address yields 200 with an empty body rather than an error.
-		{"unparseable address", "not-an-address", "", ""},
+		{"ipv4", "203.0.113.7:51234", "", http.StatusOK, "203.0.113.7"},
+		{"ipv6", "[2001:db8::1]:443", "", http.StatusOK, "2001:db8::1"},
+		{"ipv6 loopback", "[::1]:8080", "", http.StatusOK, "::1"},
+		{"behind a proxy: X-Forwarded-For wins", "10.0.0.5:4000", "198.51.100.9", http.StatusOK, "198.51.100.9"},
+		{"proxy chain: left-most entry is the client", "10.0.0.5:4000", "198.51.100.9, 10.0.0.1", http.StatusOK, "198.51.100.9"},
+		{"ipv6 in X-Forwarded-For", "10.0.0.5:4000", "2001:db8::7", http.StatusOK, "2001:db8::7"},
+		{"garbage X-Forwarded-For falls back to connection", "10.0.0.5:4000", "not-an-ip", http.StatusOK, "10.0.0.5"},
+		{"unparseable address is a 500", "not-an-address", "", http.StatusInternalServerError, "could not determine client IP\n"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -153,9 +210,12 @@ func TestWhatIsMyIP(t *testing.T) {
 			}
 			w := serve(whatismyip, req)
 
-			wantStatus(t, w, http.StatusOK)
+			wantStatus(t, w, tc.status)
 			if got := w.Body.String(); got != tc.want {
 				t.Errorf("body: want %q, got %q", tc.want, got)
+			}
+			if ct := w.Header().Get("Content-Type"); ct != "text/plain; charset=utf-8" {
+				t.Errorf("Content-Type: want text/plain, got %q", ct)
 			}
 		})
 	}
@@ -166,16 +226,14 @@ func TestWhatIsMyIP(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestUserAgent(t *testing.T) {
-	// NOTE: the value is r.Header["User-Agent"], a []string - so the JSON
-	// is an array (or null), not a plain string.
 	cases := []struct {
 		name string
 		uas  []string
 		want string
 	}{
-		{"single", []string{"gosst-test/1.0"}, `{"User agent":["gosst-test/1.0"]}`},
-		{"missing", nil, `{"User agent":null}`},
-		{"repeated header", []string{"a/1", "b/2"}, `{"User agent":["a/1","b/2"]}`},
+		{"single", []string{"gosst-test/1.0"}, `{"user_agent":"gosst-test/1.0"}`},
+		{"missing", nil, `{"user_agent":""}`},
+		{"repeated header uses the first", []string{"a/1", "b/2"}, `{"user_agent":"a/1"}`},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -186,6 +244,7 @@ func TestUserAgent(t *testing.T) {
 			w := serve(user_agent, req)
 
 			wantStatus(t, w, http.StatusOK)
+			wantJSONContentType(t, w)
 			if got := w.Body.String(); got != tc.want {
 				t.Errorf("body: want %s, got %s", tc.want, got)
 			}
@@ -198,6 +257,7 @@ func TestUserAgent(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestVersion(t *testing.T) {
+	goVersion := runtime.Version()
 	cases := []struct {
 		name                                         string
 		buildID, commit, branch, buildTime, deployer string
@@ -206,23 +266,23 @@ func TestVersion(t *testing.T) {
 	}{
 		{
 			name:    "stamped build with env",
-			buildID: "v1.2.3", commit: "deadbee", branch: "master",
+			buildID: "circle-42", commit: "deadbee", branch: "master",
 			buildTime: "2026-11-18T12:00:00Z", deployer: "circleci",
-			envBuildID: "circle-42", envDeployEnv: "test",
+			envBuildID: "aca-rev-7", envDeployEnv: "test",
 			want: map[string]string{
-				"version": "v1.2.3", "build": "circle-42", "commit": "deadbee",
+				"version": "circle-42", "build": "aca-rev-7", "commit": "deadbee",
 				"branch": "master", "timestamp": "2026-11-18T12:00:00Z",
-				"deployed_by": "circleci", "env": "test",
+				"deployed_by": "circleci", "env": "test", "go_version": goVersion,
 			},
 		},
 		{
 			name:    "env fallbacks",
-			buildID: "v1.2.3", commit: "deadbee", branch: "master",
+			buildID: "circle-42", commit: "deadbee", branch: "master",
 			buildTime: "2026-11-18T12:00:00Z", deployer: "circleci",
 			want: map[string]string{
-				"version": "v1.2.3", "build": "local-build", "commit": "deadbee",
+				"version": "circle-42", "build": "local-build", "commit": "deadbee",
 				"branch": "master", "timestamp": "2026-11-18T12:00:00Z",
-				"deployed_by": "circleci", "env": "dev",
+				"deployed_by": "circleci", "env": "dev", "go_version": goVersion,
 			},
 		},
 		{
@@ -230,6 +290,7 @@ func TestVersion(t *testing.T) {
 			want: map[string]string{
 				"version": "", "build": "local-build", "commit": "",
 				"branch": "", "timestamp": "", "deployed_by": "", "env": "dev",
+				"go_version": goVersion,
 			},
 		},
 	}
@@ -239,18 +300,32 @@ func TestVersion(t *testing.T) {
 			t.Setenv("BUILD_ID", tc.envBuildID)     // "" => getEnv falls back
 			t.Setenv("DEPLOY_ENV", tc.envDeployEnv) // "" => getEnv falls back
 
-			w := serve(version, httptest.NewRequest(http.MethodGet, "/version", nil))
+			w := serve(versionHandler(loadRuntimeEnv()), httptest.NewRequest(http.MethodGet, "/version", nil))
 
 			wantStatus(t, w, http.StatusOK)
-			if ct := w.Header().Get("Content-Type"); ct != "application/json" {
-				t.Errorf("Content-Type: want application/json, got %q", ct)
-			}
+			wantJSONContentType(t, w)
 			var got map[string]string
 			decodeJSON(t, w, &got)
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("payload mismatch\nwant: %v\n got: %v", tc.want, got)
 			}
 		})
+	}
+}
+
+func TestVersionReadsEnvOnce(t *testing.T) {
+	t.Setenv("BUILD_ID", "first")
+	t.Setenv("DEPLOY_ENV", "staging")
+	h := versionHandler(loadRuntimeEnv())
+
+	// Changing the env after the handler is built must not change the output.
+	t.Setenv("BUILD_ID", "second")
+	t.Setenv("DEPLOY_ENV", "prod")
+
+	var got map[string]string
+	decodeJSON(t, serve(h, httptest.NewRequest(http.MethodGet, "/version", nil)), &got)
+	if got["build"] != "first" || got["env"] != "staging" {
+		t.Errorf("want build=first env=staging (read at startup), got build=%q env=%q", got["build"], got["env"])
 	}
 }
 
@@ -262,16 +337,14 @@ func TestHostz(t *testing.T) {
 	w := serve(hostz, httptest.NewRequest(http.MethodGet, "/hostz", nil))
 
 	wantStatus(t, w, http.StatusOK)
-	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
-		t.Errorf("Content-Type: want application/json, got %q", ct)
-	}
+	wantJSONContentType(t, w)
 
 	// Mixed value types in the payload, so decode loosely.
 	var got map[string]interface{}
 	decodeJSON(t, w, &got)
 
-	if len(got) != 8 {
-		t.Errorf("want 8 fields, got %d: %v", len(got), got)
+	if len(got) != 9 {
+		t.Errorf("want 9 fields, got %d: %v", len(got), got)
 	}
 
 	// Strings we can compare exactly against the running process.
@@ -285,6 +358,9 @@ func TestHostz(t *testing.T) {
 	}
 	if got["arch"] != runtime.GOARCH {
 		t.Errorf("arch: want %q, got %v", runtime.GOARCH, got["arch"])
+	}
+	if got["go_version"] != runtime.Version() {
+		t.Errorf("go_version: want %q, got %v", runtime.Version(), got["go_version"])
 	}
 
 	// JSON numbers decode as float64, so convert before comparing.
@@ -386,14 +462,20 @@ func TestJsonIfy(t *testing.T) {
 	})
 }
 
-func TestCheckErr(t *testing.T) {
-	// NOTE: checkErr just hands back its input - it doesn't log, panic or
-	// stop the caller, so handlers that rely on it silently ignore errors.
-	if checkErr(nil) != nil {
-		t.Error("want nil for nil input")
-	}
-	boom := errors.New("boom")
-	if checkErr(boom) != boom {
-		t.Error("want the same error back")
-	}
+func TestWriteJSON(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		writeJSON(w, map[string]string{"k": "100%s"})
+
+		wantStatus(t, w, http.StatusOK)
+		wantJSONContentType(t, w)
+		if got := w.Body.String(); got != `{"k":"100%s"}` {
+			t.Errorf("body: want %s, got %s", `{"k":"100%s"}`, got)
+		}
+	})
+	t.Run("marshal failure is a 500", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		writeJSON(w, make(chan int))
+		wantStatus(t, w, http.StatusInternalServerError)
+	})
 }
