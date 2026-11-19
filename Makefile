@@ -10,7 +10,7 @@ BINARY ?= main_linux
 COVERAGE := coverage.out
 JUNIT := junit.xml
 
-# gotestsum wraps `go test` to emit JUnit XML for the Harness Tests tab.
+# gotestsum wraps `go test` to emit JUnit XML for the CircleCI Tests tab.
 # Installed on demand; override if it lives elsewhere on your PATH.
 GOPATH_BIN := $(shell go env GOPATH)/bin
 GOTESTSUM ?= $(GOPATH_BIN)/gotestsum

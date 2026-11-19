@@ -1,42 +1,53 @@
 # 🛰️ GOSST — Go Service Skeleton Template
 
-[![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/aedifex/GOSST/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/aedifex/GOSST/tree/master)
 
-Minimal, CI/CD-native Go service built specifically to demonstrate real-world delivery workflows in **Harness CI/CD**.
+Minimal Go web service with a complete, multi-stage build pipeline on **CircleCI**.
 
 ---
 
 ## 🚀 What is GOSST?
 
-**GOSST** is a production-minded Go web service, containerized with Docker and designed from day one to run inside a modern CI/CD pipeline — with first-class support for [Harness](https://harness.io).
+**GOSST** is a production-minded Go web service, containerized with Docker and designed to run inside a modern CI pipeline. Every push is formatted, vetted, tested across several Go versions, cross-compiled for four platforms, smoke-tested and packaged — all on [CircleCI](https://circleci.com).
 
 This is not a toy example.
 
 It exists to:
 
-- Demonstrate real CI → Build → Push → Deploy workflows
-- Validate cloud-native deployment patterns
+- Demonstrate a real lint → test → build → verify → package workflow
+- Show fan-out / fan-in pipelines with CircleCI matrix jobs
 - Serve as a clean foundation for microservices or API development
-- Showcase Harness-native pipeline automation in a minimal, reproducible way
+- Keep CI logic in the `Makefile`, so any CI system can drive it
 
 Zero external dependencies — standard library only.
 
 ---
 
-## ⚙️ Harness-First by Design
+## ⚙️ CI on CircleCI
 
-GOSST plugs directly into **Harness CI/CD**.
+Pipeline configuration lives in [`.circleci/config.yml`](.circleci/config.yml). Every push runs:
 
-Typical enterprise flow:
+```
+fmt ─┐   ┌─ test-go1.22 ─┐   ┌─ build-linux-amd64 ──┬─ smoke ─┐
+     ├───┼─ test-go1.23 ─┼───┼─ build-linux-arm64 ──┤         ├─ package
+vet ─┘   └─ test-go1.24 ─┘   ├─ build-darwin-amd64 ─┤         │
+                             └─ build-darwin-arm64 ─┴─────────┘
+```
 
-1. Git push triggers Harness pipeline
-2. Harness builds the container image
-3. Image is pushed to Azure Container Registry
-4. Harness deploys to Azure Container Apps
+| Stage | What it does |
+| --- | --- |
+| `fmt`, `vet` | Fail fast on unformatted code or `go vet` findings |
+| `test-go*` | `make test` — race detector + coverage — once per Go version (matrix) |
+| `build-*` | `make build` for each OS/arch (matrix), with build identity stamped in via `-ldflags` |
+| `smoke` | Boots the linux/amd64 binary and hits `/health`, `/faux`, `/version`, `/hostz` |
+| `package` | Collects every binary and writes `SHA256SUMS` |
 
-Pipeline configuration lives in `.harness/` and is structured for clarity and extensibility.
+Where to look in the CircleCI UI:
 
-The goal: clarity over complexity. No magic. Just reproducible delivery.
+- **Tests tab** — every test and sub-test, once per Go version (JUnit via [gotestsum](https://github.com/gotestyourself/gotestsum))
+- **Artifacts** — `gosst-<os>-<arch>` binaries + `SHA256SUMS` on the `package` job; coverage profiles on each test job; server log on `smoke`
+
+The pipeline builds artifacts only — it doesn't push images or deploy. The goal: clarity over complexity. No magic. Just reproducible builds.
 
 ---
 
@@ -64,12 +75,13 @@ Behind a load balancer, curl `/hostz` a few times and watch `hostname` change as
 
 ```
 .
-├── main.go         # HTTP service — stdlib only
-├── main_test.go    # Handler + smoke tests
-├── Dockerfile      # Slim alpine image (expects a prebuilt main_linux)
-├── Makefile        # fmt / vet / lint / test / build / docker targets
-├── static/         # Static content served at /
-└── .harness/       # Harness CI/CD pipeline configs
+├── main.go               # HTTP service — stdlib only
+├── main_test.go          # Handler unit tests
+├── routes_test.go        # Router, static-site and smoke tests (real HTTP)
+├── Dockerfile            # Slim alpine image (expects a prebuilt main_linux)
+├── Makefile              # fmt / vet / lint / test / build / docker targets
+├── static/               # Static content served at /
+└── .circleci/config.yml  # CircleCI pipeline
 ```
 
 ---
@@ -84,36 +96,50 @@ make check          # fmt + vet + lint + mod + test
 
 Visit: http://localhost:8000/health
 
-Note that `make build` cross-compiles a **linux/amd64** binary named `main_linux` for the container image — it won't execute on macOS. Use `go run .` for local work.
+`make build` cross-compiles a **linux/amd64** binary named `main_linux` by default — the one the container image expects, and it won't execute on macOS. Use `go run .` for local work, or override the target:
+
+```bash
+make build GOOS=darwin GOARCH=arm64 BINARY=dist/gosst-darwin-arm64
+```
 
 ---
 
 ## 🐳 Container Build + Push
 
+Not part of the CI pipeline — run by hand when you want an image:
+
 ```bash
+make build
 make docker-build
 make docker-push
 ```
 
-Or by hand:
+Or directly:
 
 ```bash
 docker build --platform linux/amd64 -t <your-acr>.azurecr.io/gosst:<tag> .
 docker push <your-acr>.azurecr.io/gosst:<tag>
 ```
 
-The image copies a prebuilt `main_linux`, so run `make build` first. Designed to mirror what the Harness pipeline performs automatically.
+The image copies a prebuilt `main_linux`, so run `make build` first.
 
 ---
 
 ## 🔭 Extension Ideas
 
+- Security scanning stage — `govulncheck` on the built binaries, `gosec` on source
+- Deploy stage: push to Azure Container Registry → deploy to Azure Container Apps
 - Split readiness from liveness, with a runtime toggle to demo rolling deploys
 - Expose `/metrics` in Prometheus text format
 - `/status/{code}`, `/delay?ms=`, `/burn` — make the pipeline and platform visibly misbehave on command
 - Multi-stage Dockerfile so the image builds from source with no prebuilt binary
 - Multi-environment promotion (dev → staging → prod)
-- Integrate STO or policy enforcement in pipeline
+
+---
+
+## 📜 History
+
+GOSST was originally built to demo Harness CI/CD. That pipeline config lives on the [`circleci-project-setup`](https://github.com/aedifex/GOSST/tree/circleci-project-setup) branch.
 
 ---
 
@@ -121,7 +147,7 @@ The image copies a prebuilt `main_linux`, so run `make build` first. Designed to
 
 Built by [Christopher Black](https://github.com/aedifex)
 
-Intent: demonstrate how simplicity and enterprise-grade CI/CD automation can coexist — especially within Harness.
+Intent: demonstrate how simplicity and enterprise-grade CI/CD automation can coexist.
 
 ---
 
